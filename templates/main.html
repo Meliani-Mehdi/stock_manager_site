@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>stock</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login2.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <div class="site_head">
+      <div class="logo">
+        <a href="/main">
+          <img src="{{ url_for('static', filename='assets/packages.png') }}" alt="error">
+          <h1>project name</h1>
+        </a>
+      </div>
+      <div class="head_right">
+        
+      </div>
+    </div>
+    <div class="main_frame">
+      <div class="buttons_frame">
+        <br>
+        <a href="/client"><button type="button" class="button-19">Client</button></a>
+        <br>
+        <a href="/stock"><button type="button" class="button-19">Stock</button></a>
+        <br>
+        <a href="/"><button type="button" class="button-19">Logout</button></a>
+      </div>
+      <div class="display_frame">
+        <div class="top_side">
+          {% block top %}{% endblock %}
+        </div>
+        <div class="bot_side">
+          {% block bot %}{% endblock %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
