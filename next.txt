@@ -1,0 +1,33 @@
+cursor.execute('''
+        CREATE TABLE IF NOT EXISTS name_table (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date DATE,
+            MM_super_st TEXT,
+            MM_super_e TEXT,
+            MM_super_so TEXT,
+            MM_Fardeaux_st TEXT,
+            MM_Fardeaux_e TEXT,
+            MM_Fardeaux_so TEXT,
+            GMM_st TEXT,
+            GMM_e TEXT,
+            GMM_so TEXT,
+            GM_st TEXT,
+            GM_e TEXT,
+            GM_so TEXT,
+            PM_st TEXT,
+            PM_e TEXT,
+            PM_so TEXT,
+            PAIN_st TEXT,
+            PAIN_e TEXT,
+            PAIN_so TEXT,
+            GGM_st TEXT,
+            GGM_e TEXT,
+            GGM_so TEXT,
+            WELCOME_st TEXT,
+            WELCOME_e TEXT,
+            WELCOME_so TEXT,
+            POUBELLE_BASE_st TEXT,
+            POUBELLE_BASE_e TEXT,
+            POUBELLE_BASE_so TEXT
+        )
+    ''')

@@ -1,39 +1,18 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>stock</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
-  </head>
-  <body>
-    <div class="site_head">
-      <div class="logo">
-        <a href="main.html">
-          <img src="packages.png" alt="error">
-          <h1>project name</h1>
-        </a>
-      </div>
-      <div class="head_right">
-        
-      </div>
-    </div>
-    <div class="main_frame">
-      <div class="buttons_frame">
-        <br>
-        <a href="client.html"><button type="button" class="button-19">Client</button></a>
-        <br>
-        <a href="stock.html"><button type="button" class="button-19">Stock</button></a>
-        <br>
-        <a href=""><button type="button" class="button-19">hello</button></a>
-      </div>
-      <div class="display_frame">
-        <div class="top_side">
-          <a href="main.html"><div class="thick-arrow-left"></div></a>
-          <a href="main.html" id="aclose"><div class="close"></div></a>
-        </div>
-        <div class="bot_side">
-          
-        </div>
-      </div>
-    </div>
-  </body>
-</html>
+{% extends 'main.html' %}
+
+{% block head %}
+<title>Stock</title>
+{% endblock %}
+
+{% block top %}
+<a href="/main"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+<div class="mid">
+  <a href="/stock/view"><button type="button" class="button-19 bot">View Stock</button></a>
+  <br>
+  <a href="/stock/add"><button type="button" class="button-19 bot">Add Stock</button></a>
+</div>
+{% endblock %}

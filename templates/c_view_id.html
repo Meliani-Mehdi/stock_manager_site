@@ -1,0 +1,52 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<title>Client View</title>
+<style>
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    background-color: #ffdd88;
+  }
+
+  th {
+    background-color: #f2f2f2;
+  }
+
+  tr:hover {
+    background-color: #f5f5f5;
+  }
+</style>
+{% endblock %}
+
+{% block top %}
+<a href="/client/view"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+<h2>Games</h2>
+  <table>
+    <tr>
+      <th>Game Name</th>
+      <th>Number</th>
+      <th>Unit</th>
+      <th>Unit Price</th>
+    </tr>
+    {% for game in games %}
+      <tr>
+        <td>{{ game[1] }}</td>
+        <td>{{ game[3] }}</td>
+        <td>{{ game[4] }}</td>
+        <td>{{ game[5] }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

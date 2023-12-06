@@ -26,12 +26,6 @@
         '<label class="l-lab" for="number">Number:</label>' +
         '<input type="number" class="l-inp" name="number[]" required>' +
         '<br><br>' +
-        '<label class="l-lab" for="unit">Unit:</label><br>' +
-        '<input type="number" class="l-inp" name="unit[]" required>' +
-        '<br><br>' +
-        '<label class="l-lab" for="unitPrice">Unit Price:</label>' +
-        '<input type="number" class="l-inp" name="unitPrice[]" required>' +
-        '<br><br>' +
         '<button type="button" onclick="removeFields(this)" class="button-19">-</button>' +
         '<br><br>'+
         '</div>';
@@ -54,19 +48,12 @@
 {% endblock %}
 
 {% block top %}
-<a href="/client"><div class="thick-arrow-left"></div></a>
+<a href="/stock"><div class="thick-arrow-left"></div></a>
 <a href="/main" id="aclose"><div class="close"></div></a>
 {% endblock %}
 
 {% block bot %}
-<form id="stockForm" action="/client/add" method="post">
-  <label class="l-lab" for="firstName">First Name:</label>
-  <label class="l-lab" for="lastName">Last Name:</label>
-  <br>
-  <input id="fn" type="text" class="l-inp" name="firstName" required>
-  <input id="ln" type="text" class="l-inp" name="lastName" required>
-  <br><br>
-  
+<form id="stockForm" action="/stock/add" method="post">
   <label class="l-lab" for="game">G.A.M.E:</label><br>
   <select class="l-inp" name="gameName[]" required>
     <option value="MM super">MM super</option>
@@ -79,16 +66,9 @@
     <option value="WELCOME">WELCOME</option>
     <option value="POUBELLE BASE">POUBELLE BASE</option>
   </select>
-
   <br><br>
   <label class="l-lab" for="number">Number:</label>
   <input type="number" class="l-inp" name="number[]" required>
-  <br><br>
-  <label class="l-lab" for="unit">Unit:</label><br>
-  <input type="number" class="l-inp" name="unit[]" required>
-  <br><br>
-  <label class="l-lab" for="unitPrice">Unit Price:</label>
-  <input type="number" class="l-inp" name="unitPrice[]" required>
   <br><br>
   <button type="button" onclick="addFields()" class="button-19">+</button>
   <br><br>

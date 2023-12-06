@@ -13,7 +13,7 @@ body {
 /* Header Section */
 .site_head {
   display: flex;
-  height: 8vh;
+  height: 8%;
 }
 
 .logo {
@@ -43,7 +43,6 @@ body {
 .head_right {
   background-color: #87623f;
   width: 70%;
-  height: 100%;
   z-index: 3;
 }
 
@@ -51,16 +50,14 @@ body {
 .main_frame {
   display: flex;
   width: 100%;
-  height: 92vh;
-  background-color: #EBD1A3;
+  background-color: #97724f;
 }
 
 /* Buttons Section */
 .buttons_frame {
   width: 16%;
-  height: 100%;
+  height: 92vh;
   background-color: #97724f;
-  box-shadow: #33333340 0px 14px 28px, #33333335 0px 10px 10px;
   z-index: 1;
 }
 
@@ -74,7 +71,6 @@ body {
 /* Display Section */
 .display_frame {
   width: 84%;
-  height: 100%;
   background-color: #97724f;
   box-shadow: 0px 14px 28px inset #33333335 , 0px 10px 10px inset #33333335 ;
   z-index: 5;
@@ -160,11 +156,7 @@ a {
 }
 
 /* Bottom Section */
-.bot {
-  width: 70%;
-  margin: 10px;
-  margin-left: 10%;
-}
+
 
 /* Close Icon */
 #aclose {
@@ -208,7 +200,21 @@ a {
   height: 35px;
 }
 
-.bot_side .button-19{
+.bot_side .button-19 {
   width: 30%;
+  margin: 10px;
   margin-left: 35%;
+}
+
+.mid {
+  margin-left: 35%;
+}
+
+.bot_side .mid .button-19 {
+  margin-left: 0;
+}
+
+#stockForm select {
+  height: 40px;
+
 }

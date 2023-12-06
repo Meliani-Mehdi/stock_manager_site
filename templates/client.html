@@ -1,6 +1,8 @@
 {% extends 'main.html' %}
 
-{% block head %}{% endblock %}
+{% block head %}
+<title>Client</title>
+{% endblock %}
 
 {% block top %}
 <a href="/main"><div class="thick-arrow-left"></div></a>
@@ -8,6 +10,9 @@
 {% endblock %}
 
 {% block bot %}
-<a href="/client/view"><button type="button" class="button-19 bot">View clients</button></a>
-<a href="/client/add"><button type="button" class="button-19 bot">Add client</button></a>
+<div class="mid">
+  <a href="/client/view"><button type="button" class="button-19 bot">View clients</button></a>
+  <br>
+  <a href="/client/add"><button type="button" class="button-19 bot">Add client</button></a>
+</div>
 {% endblock %}
