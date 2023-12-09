@@ -32,21 +32,29 @@
 {% endblock %}
 
 {% block bot %}
-<h2>Games</h2>
-  <table>
+<h1>{{ user_data[2] }}</h1>
+<h2>Welcome, {{ user_data[0] }} {{ user_data[1] }}</h2>
+<table>
+  <tr>
+    <th>Game Name</th>
+    <th>Number</th>
+    <th>Unit</th>
+    <th>Unit Price</th>
+    <th>Total</th>
+    <th>Payment</th>
+    <th>Sold</th>
+  </tr>
+  {% for game in games %}
     <tr>
-      <th>Game Name</th>
-      <th>Number</th>
-      <th>Unit</th>
-      <th>Unit Price</th>
+      <td>{{ game[1] }}</td>
+      <td>{{ game[3] }}</td>
+      <td>{{ game[4] }}</td>
+      <td>{{ game[5] }}</td>
+      <td>{{ game[3] * game[4] * game[5] }}</td>
+      <td>{{ game[6] }}</td>
+      <td>{{ game[3] * game[4] * game[5] - game[6]}}</td>
     </tr>
-    {% for game in games %}
-      <tr>
-        <td>{{ game[1] }}</td>
-        <td>{{ game[3] }}</td>
-        <td>{{ game[4] }}</td>
-        <td>{{ game[5] }}</td>
-      </tr>
-    {% endfor %}
-  </table>
+  {% endfor %}
+</table>
 {% endblock %}
+
