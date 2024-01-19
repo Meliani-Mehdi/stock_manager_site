@@ -1,0 +1,65 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<title>Client View</title>
+<style>
+  
+  .p {
+    width: 50%;
+    margin: 25%;
+    margin-top: 1%;
+    margin-bottom: 1%
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 94%;
+    margin: 3%;
+    margin-top: 1%;
+  }
+
+  th, td {
+    border: 1px solid #333344;
+    padding: 8px;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f2f2f2;
+  }
+
+  tr:nth-child(even) td {
+    background-color: #3a8cff;
+  }
+
+  tr:nth-child(odd) td {
+    background-color: #4ba0ff;
+  }
+</style>
+{% endblock %}
+
+{% block top %}
+<a href="/client/view/{{ id }}" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+<h1>{{ user_data[2] }}</h1>
+<h2>The Payment of: {{ user_data[0] }} {{ user_data[1] }}</h2>
+<table>
+  <tr>
+    <th>Date</th>
+    <th>Payment</th>
+  </tr>
+  {% for pay in pays %}
+    <tr>
+      <td>{{ pay[2] }}</td>
+      <td>{{ pay[3] }}</td>
+    </tr>
+  {% endfor %}
+  <tr>
+    <td style="background-color: #f2f2f2;">Total:</td>
+    <td style="background-color: #f2f2f2;">{{ t }}</td>
+  </tr>
+</table>
+{% endblock %}

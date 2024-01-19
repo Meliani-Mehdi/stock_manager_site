@@ -1,0 +1,57 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<title>Stock View</title>
+<style>
+  table {
+    border-collapse: collapse;
+    width: 40%;
+    margin: 30%;
+    margin-top: 1%;
+  }
+
+  th, td {
+    border: 1px solid #333344;
+    padding: 8px;
+    text-align: center;
+  }
+
+  th {
+    background-color: #f2f2f2;
+  }
+
+  tr:nth-child(even) td {
+    background-color: #3a8cff;
+  }
+
+  tr:nth-child(odd) td {
+    background-color: #4ba0ff;
+  }
+</style>
+{% endblock %}
+
+{% block top %}
+<a href="/detail" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+
+{% block bot %}
+
+<form method="POST" action="/detail/view">
+  <b><label for="search_date">Search Date:</label></b>
+  <input type="date" id="search_date" name="search_date">
+  <button type="submit">Search</button>
+</form>
+
+<table>
+  <tr>
+    <th>DATE</th>
+  </tr>
+  {% for date in dates %}
+  <tr>
+    <td onclick="window.location='/detail/view/{{ date[0] }}';" style="cursor: pointer;">{{ date[1] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

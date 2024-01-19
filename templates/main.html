@@ -7,34 +7,31 @@
     {% endblock %}
   </head>
   <body>
-    <div class="site_head">
-      <div class="logo">
-        <a href="/main">
-          <img src="{{ url_for('static', filename='assets/packages.png') }}" alt="error">
-          <h1>project name</h1>
-        </a>
+    <div class="bg">
+      <div class="hd">
+        <img class="logo" src="{{ url_for('static', filename='assets/lll.png') }}" onclick="goToHomePage()" style="cursor: pointer;"/>
+        <h1 class="fn" onclick="goToHomePage()" style="cursor: pointer;">EUDOX EMBALAGE</h1>
+        <ul class="nav">
+          <li><a href="/client">Client</a></li>
+          <li><a href="/stock">Stock</a></li>
+          <li><a href="/detail">detaille</a></li>
+          <li><a href="/">Logout</a></li>
+        </ul>
       </div>
-      <div class="head_right">
-        
-      </div>
-    </div>
-    <div class="main_frame">
-      <div class="buttons_frame">
-        <br>
-        <a href="/client"><button type="button" class="button-19">Client</button></a>
-        <br>
-        <a href="/stock"><button type="button" class="button-19">Stock</button></a>
-        <br>
-        <a href="/"><button type="button" class="button-19">Logout</button></a>
-      </div>
-      <div class="display_frame">
-        <div class="top_side">
-          {% block top %}{% endblock %}
+        <div class="display_frame">
+          <div class="top_side">
+            {% block top %}{% endblock %}
+          </div>
+          <div class="bot_side">
+            {% block bot %}{% endblock %}
+          </div>
         </div>
-        <div class="bot_side">
-          {% block bot %}{% endblock %}
-        </div>
-      </div>
     </div>
+    <script>
+      function goToHomePage() {
+        window.location.href = '/main';
+      }
+    </script>
   </body>
 </html>
+

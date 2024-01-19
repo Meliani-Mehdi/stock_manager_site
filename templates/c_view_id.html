@@ -3,37 +3,49 @@
 {% block head %}
 <title>Client View</title>
 <style>
+  
+  .p {
+    width: 50%;
+    margin: 25%;
+    margin-top: 1%;
+    margin-bottom: 1%
+  }
+
   table {
     border-collapse: collapse;
-    width: 100%;
-    margin-top: 20px;
+    width: 94%;
+    margin: 3%;
+    margin-top: 1%;
   }
 
   th, td {
-    border: 1px solid #ddd;
+    border: 1px solid #333344;
     padding: 8px;
     text-align: left;
-    background-color: #ffdd88;
   }
 
   th {
     background-color: #f2f2f2;
   }
 
-  tr:hover {
-    background-color: #f5f5f5;
+  tr:nth-child(even) td {
+    background-color: #3a8cff;
+  }
+
+  tr:nth-child(odd) td {
+    background-color: #4ba0ff;
   }
 </style>
 {% endblock %}
 
 {% block top %}
-<a href="/client/view"><div class="thick-arrow-left"></div></a>
+<a href="/client/view" id="back"><div class="thick-arrow-left"></div></a>
 <a href="/main" id="aclose"><div class="close"></div></a>
 {% endblock %}
 
 {% block bot %}
 <h1>{{ user_data[2] }}</h1>
-<h2>Welcome, {{ user_data[0] }} {{ user_data[1] }}</h2>
+<h2>Client: {{ user_data[0] }} {{ user_data[1] }}</h2>
 <table>
   <tr>
     <th>Game Name</th>
@@ -41,8 +53,6 @@
     <th>Unit</th>
     <th>Unit Price</th>
     <th>Total</th>
-    <th>Payment</th>
-    <th>Sold</th>
   </tr>
   {% for game in games %}
     <tr>
@@ -51,10 +61,27 @@
       <td>{{ game[4] }}</td>
       <td>{{ game[5] }}</td>
       <td>{{ game[3] * game[4] * game[5] }}</td>
-      <td>{{ game[6] }}</td>
-      <td>{{ game[3] * game[4] * game[5] - game[6]}}</td>
     </tr>
   {% endfor %}
 </table>
+<table class="p" onclick="window.location='/client/view/{{ id }}/payment';" style="cursor: pointer;">
+  <tr>
+    <th>Total</th>
+    <th>Payment</th>
+    <th>Sold</th>
+  </tr>
+  <tr>
+    <td>{{ t }}</td>
+    <td>{{ user_data[3] }}</td>
+    <td>{{ sold }}</td>
+  </tr>
+</table>
+<br>
+<form method="POST" action="/client/view/{{ id }}">
+  <input type="number" id="pay" name="pay" required>
+  <br>
+  <button type="submit" class="button-19">add payment</button>
+</form>
+<br>
+<br>
 {% endblock %}
-

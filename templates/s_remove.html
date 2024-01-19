@@ -46,7 +46,7 @@
 
   function removeFields(button) {
     var wrapper = document.getElementById('duplicate-fields');
-    var fieldToRemove = button.parentNode.parentNode; // Get the grandparent of the button
+    var fieldToRemove = button.parentNode.parentNode;
     wrapper.removeChild(fieldToRemove);
   }
 </script>
@@ -59,7 +59,7 @@
 {% endblock %}
 
 {% block bot %}
-<form id="stockForm" action="/stock/add" method="post">
+<form id="stockForm" action="/stock/remove" method="post">
   <label class="l-lab" for="game">G.A.M.E:</label><br>
   <select class="l-inp" name="gameName[]" required>
     <option value="MM super">MM super</option>

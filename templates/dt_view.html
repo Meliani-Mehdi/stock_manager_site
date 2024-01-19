@@ -1,0 +1,63 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<title>Stock View</title>
+<style>
+  table {
+    border-collapse: collapse;
+    width: 40%;
+    margin: 30%;
+    margin-top: 1%;
+  }
+
+  th, td {
+    border: 1px solid #333344;
+    padding: 8px;
+    text-align: center;
+  }
+
+  th {
+    background-color: #f2f2f2;
+  }
+
+  tr:nth-child(even) td {
+    background-color: #3a8cff;
+  }
+
+  tr:nth-child(odd) td {
+    background-color: #4ba0ff;
+  }
+</style>
+{% endblock %}
+
+{% block top %}
+<a href="/detail/view" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+
+{% block bot %}
+<table>
+  <tr>
+    <td onclick="window.location='/detail/view/{{ date }}/0';" style="cursor: pointer;"><br>MM SUPER<br><br></td>
+    <td onclick="window.location='/detail/view/{{ date }}/1';" style="cursor: pointer;"><br>MM FARDEAUX<br><br></td>
+    <td onclick="window.location='/detail/view/{{ date }}/2';" style="cursor: pointer;"><br>GMM<br><br></td>
+    <td onclick="window.location='/detail/view/{{ date }}/3';" style="cursor: pointer;"><br>GMM x25<br><br></td>
+    <td onclick="window.location='/detail/view/{{ date }}/4';" style="cursor: pointer;"><br>GMM x30<br><br></td>
+  </tr>
+  <tr>
+    <td onclick="window.location='/detail/view/{{ date }}/5';" style="cursor: pointer;"><br>MM IMP MANTOUDJ<br><br></td>
+    <td onclick="window.location='/detail/view/{{ date }}/6';" style="cursor: pointer;"><br>PM<br><br></td>
+    <td onclick="window.location='/detail/view/{{ date }}/7';" style="cursor: pointer;"><br>GM IMP<br><br></td>
+    <td onclick="window.location='/detail/view/{{ date }}/8';" style="cursor: pointer;"><br>GM IMP x20<br><br></td>
+    <td onclick="window.location='/detail/view/{{ date }}/9';" style="cursor: pointer;"><br>PAIN<br><br></td>
+  </tr>
+  <tr>
+    <td onclick="window.location='/detail/view/{{ date }}/10';" style="cursor: pointer;"><br>POUBELLE BASE<br><br></td>
+    <td onclick="window.location='/detail/view/{{ date }}/11';" style="cursor: pointer;"><br>POUBELLE<br><br></td>
+    <td onclick="window.location='/detail/view/{{ date }}/12';" style="cursor: pointer;"><br>CONGELATION<br><br></td>
+    <td onclick="window.location='/detail/view/{{ date }}/13';" style="cursor: pointer;"><br>GGM<br><br></td>
+    <td onclick="window.location='/detail/view/{{ date }}/14';" style="cursor: pointer;"><br>WELCOME<br><br></td>
+  </tr>
+</table>
+{% endblock %}

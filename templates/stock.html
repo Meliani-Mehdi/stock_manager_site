@@ -5,14 +5,14 @@
 {% endblock %}
 
 {% block top %}
-<a href="/main"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="back"><div class="thick-arrow-left"></div></a>
 <a href="/main" id="aclose"><div class="close"></div></a>
 {% endblock %}
 
 {% block bot %}
-<div class="mid">
   <a href="/stock/view"><button type="button" class="button-19 bot">View Stock</button></a>
-  <br>
+  <br><br>
   <a href="/stock/add"><button type="button" class="button-19 bot">Add Stock</button></a>
-</div>
+  <br><br>
+  <a href="/stock/remove"><button type="button" class="button-19 bot">Remove Stock</button></a>
 {% endblock %}

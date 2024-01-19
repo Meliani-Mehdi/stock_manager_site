@@ -25,7 +25,7 @@
 }
 
 .legend-c{
-  background-color: #c7692e;
+  background-color: #3a8cff;
   border: 2px solid #f0f0f0;
   border-radius: 5px;
   padding: 8px;
@@ -58,7 +58,7 @@
 /* CSS */
 .button-19 {
   appearance: button;
-  background-color: #b7591e;
+  background-color: #3a8cff;
   border: solid transparent;
   border-radius: 16px;
   border-width: 0 0 4px;
@@ -89,7 +89,7 @@
 
 .button-19:after {
   background-clip: padding-box;
-  background-color: #c7692e;
+  background-color: #4ba0ff;
   border: solid transparent;
   border-radius: 16px;
   border-width: 0 0 4px;
