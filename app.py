@@ -1,5 +1,5 @@
-from os import close
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, redirect, jsonify, Response
+from fpdf import FPDF
 from datetime import datetime
 import sqlite3
 import webbrowser
@@ -106,6 +106,7 @@ cursor.execute('''
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS d_mat (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        t_id INTEGER NOT NULL,
         date TEXT NOT NULL,
         p_num INTEGER NOT NULL,
         nember_d_m INTEGER,
@@ -114,7 +115,10 @@ cursor.execute('''
         number_f_r RELL,
         poid_feb RELL,
         poid_be RELL,
-        poid_bu RELL
+        poid_bu RELL,
+        stock INTEGER,
+        unit REEL,
+        p_unit REEL
     )
 ''')
 
@@ -351,6 +355,143 @@ def view_c_game(id):
 
     return render_template('c_view_id.html', user_data=user_data, games=games , sold=sold, t=total, id=id)
 
+
+@app.route('/client/view/<int:id>/makePDF')
+def make_pdf(id):
+    return render_template('pdf.html', id=id)
+
+
+@app.route('/client/view/<int:id>/pdf', methods=['POST', 'GET'])
+def generate_pdf(id):
+    if request.method=='POST':
+        conn = sqlite3.connect('form_data.db')
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT first_name, last_name, p_date, payment FROM stock_data WHERE id = ?', (id,))
+        user_data = cursor.fetchone()
+
+        cursor.execute('SELECT * FROM stk_game WHERE stock_id = ?', (id,))
+        games = cursor.fetchall()
+
+        conn.close()
+
+        total = 0
+        for game in games:
+            total = total + (game[3] * game[4] * game[5])
+
+        sold = total - user_data[3]
+
+        # Generate PDF content using fpdf
+        pdf_content = generate_pdf_content(user_data, games, sold, total, request.form.get('rcNumber'), request.form.get('nif'), request.form.get('nPlusArt'), request.form.get('adresse'))
+
+        response = Response(pdf_content, content_type='application/pdf')
+        response.headers['Content-Disposition'] = f'inline; filename=client_info_{id}.pdf'
+
+        return response
+    return render_template('pdf.html')
+
+
+
+def generate_pdf_content(user_data, games, sold, total, t1, t2, t3, t4):
+    pdf = FPDF()
+
+    pdf.add_page()
+
+    # Header
+    pdf.set_font("Arial", 'B', size=11)
+    pdf.cell(0, 10, txt="EURL \"EUDOX EMBALLAGE TIZI\" ")
+    pdf.ln(5)
+    pdf.cell(0, 10, txt="RC N° 02 B 0662557", ln=True)
+
+    pdf.cell(0, 10, txt="ART, IMPOS, 29030453801", ln=True)
+
+    pdf.cell(0, 10, txt="N.I.F M,FISCAL 000229066255719", ln=True)
+
+    #FACTURE
+    pdf.set_font("Arial", 'B', size=18)
+    
+    pdf.cell(0, 10, txt="FACTURE", ln=True, align='C')
+
+    #Date and Client
+    pdf.set_font("Arial", 'B', size=9)
+
+    pdf.cell(0, 10, txt=f"Date: {user_data[2]}", ln=True, align='C')
+
+    pdf.set_font("Arial", 'B', size=14)
+
+    pdf.cell(0, 10, txt=f"Client: {user_data[0]} {user_data[1]}", ln=True, align='C')
+
+    pdf.set_font("Arial", 'B', size=12)
+    #form info
+    pdf.cell(50, 10, txt="RC N°:", ln=False)
+    pdf.cell(50, 10, txt=t1, ln=False)
+    pdf.ln(5)
+
+    pdf.cell(50, 10, txt="NIF:", ln=False)
+    pdf.cell(50, 10, txt=t2, ln=False)
+    pdf.ln(5)
+
+    pdf.cell(50, 10, txt="N + ART:", ln=False)
+    pdf.cell(50, 10, txt=t3, ln=False)
+    pdf.ln(5)
+
+    pdf.cell(50, 10, txt="ADRESSE:", ln=False)
+    pdf.cell(50, 10, txt=t4, ln=False)
+    pdf.ln(15)
+
+    pdf.set_font("Arial", 'B', size=9)
+
+    # Add table header for games
+    pdf.set_fill_color(200, 220, 255)
+    pdf.cell(20, 8, txt="N°D ORDR", border=1, fill=True, align='C')
+    pdf.cell(20, 8, txt="QUANT", border=1, fill=True, align='C')
+    pdf.cell(50, 8, txt="Designation", border=1, fill=True, align='C')
+    pdf.cell(20, 8, txt="unit", border=1, fill=True, align='C')
+    pdf.cell(20, 8, txt="p/u", border=1, fill=True, align='C')
+    pdf.cell(40, 8, txt="montant", border=1, fill=True, align='C')
+    pdf.ln(8)
+
+    # Add games data in a table format
+    i = 0 
+    for game in games:
+        i += 1
+        pdf.cell(20, 8, txt=str(i), border=1, align='C')
+        pdf.cell(20, 8, txt=str(game[3]), border=1)
+        pdf.cell(50, 8, txt=str(game[1]), border=1)
+        pdf.cell(20, 8, txt=f"{game[4]}", border=1)
+        pdf.cell(20, 8, txt=f"{game[5]}.00", border=1)
+        pdf.cell(40, 8, txt=f"{game[3] * game[4] * game[5]}.00", border=1)
+        pdf.ln(8)
+
+    pdf.cell(110, 8, txt="")
+    pdf.cell(20, 8, txt="", border=1)
+    pdf.cell(40, 8, txt=f"{float(total):.2f}", border=1)
+    pdf.ln(8)
+    t = total*19/100
+    pdf.cell(90, 8, txt="")
+    pdf.cell(20, 8, txt="TVA", align='C')
+    pdf.cell(20, 8, txt="19", border=1)
+    pdf.cell(40, 8, txt=f"{float(t):.2f}", border=1)
+    pdf.ln(8)
+    pdf.cell(110, 8, txt="")
+    pdf.cell(20, 8, txt="", border=1)
+    pdf.cell(40, 8, txt=f"{float(total + t):.2f}", border=1)
+    pdf.ln(16)
+
+    pdf.set_font("Arial", 'B', size=10)
+
+    pdf.cell(0, 8, txt="ARRETE LA PRESENTE FACTURE A LA SOMME DE : UN MILLION CENT T E VINGTS TREIZE")
+    pdf.ln(8)
+    pdf.cell(0, 8, txt="HUIT CENT QUATRE VINGTS NEUF DINARS CINQUATE CENTIMES")
+
+
+
+
+    # Save the pdf with name .pdf
+    pdf_output = pdf.output(dest='S').encode('latin1')
+
+    return pdf_output
+
 @app.route('/client/view/<int:id>/payment', methods=['POST', 'GET'])
 def view_c_pay(id):
     conn = sqlite3.connect('form_data.db')
@@ -380,20 +521,67 @@ def detail():
 
 @app.route('/detail/add')
 def add_detail():
-    return render_template('detail.html')
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    day = datetime.now().strftime("%Y-%m-%d")
+
+    cursor.execute("SELECT MAX(t_id) FROM d_mat")
+    max_t_id = cursor.fetchone()[0]
+    t_id = max_t_id + 1 if max_t_id is not None else 1
+
+    cursor.execute("SELECT COUNT(*) FROM d_mat WHERE date = ?", (day,))
+    d = cursor.fetchone()[0]
+
+    if d == 0:
+        for p_num in range(15):
+            cursor.execute("""
+                INSERT INTO d_mat (t_id, date, p_num, nember_d_m, poid_udm, poid_f, number_f_r, poid_feb, poid_be, poid_bu, stock, unit, p_unit)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (t_id, day, p_num, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0.0))
+
+        conn.commit()
+        conn.close()
+        return render_template('d_add.html', message="Added successfully!")
+
+    conn.close()
+    return render_template('d_add.html', message="Records for today already exist.")
+
+@app.route('/detail/remove')
+def delete_detail():
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT t_id, date FROM d_mat GROUP BY t_id, date ORDER BY date DESC")
+    result = cursor.fetchall()
+
+    conn.close()
+
+    return render_template('d_remove.html', dates=result)
+
+@app.route('/detail/remove/<int:d>/delete')
+def delete_t_detail(d):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM d_mat WHERE t_id = ?", (d,))
+    conn.commit()
+
+    conn.close()
+
+    return redirect('/detail')
 
 @app.route('/detail/view')
 def view_detail():
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, date FROM d_mat")
-    d = cursor.fetchall()
+    cursor.execute("SELECT t_id, date FROM d_mat GROUP BY t_id, date ORDER BY date DESC")
+    result = cursor.fetchall()
 
     conn.close()
 
-
-    return render_template('d_view.html', dates=d)
+    return render_template('d_view.html', dates=result)
 
 @app.route('/detail/view/<int:d>')
 def view_d_detail(d):
@@ -404,15 +592,34 @@ def view_stock_d_detail(d,num):
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
     if request.method == 'POST':
-        pass
+        nember_d_m = request.form.get('ndm')
+        poid_udm = request.form.get('pudm')
+        poid_f = request.form.get('pf')
+        number_f_r = request.form.get('nfr')
+        poid_feb = request.form.get('pfb')
+        poid_be = request.form.get('pbe')
+        poid_bu = request.form.get('pbu')
+        stock = request.form.get('stock')
+        unit = request.form.get('unit')
+        p_unit = request.form.get('p_unit')
+
+        cursor.execute("""
+            UPDATE d_mat
+            SET nember_d_m=?, poid_udm=?, poid_f=?, number_f_r=?, poid_feb=?, poid_be=?, poid_bu=?, stock=?, unit=?, p_unit=?
+            WHERE t_id=? AND p_num=?
+        """, (nember_d_m, poid_udm, poid_f, number_f_r, poid_feb, poid_be, poid_bu, stock, unit, p_unit, d, num))
+
+        conn.commit()
+
+        return redirect("/detail/view/"+str(d))
     else:
-        cursor.execute("SELECT nember_d_m, poid_udm, poid_f, number_f_r, poid_feb, poid_be, poid_bu FROM d_mat WHERE id = ? AND p_num = ?", (d, num))
+        cursor.execute("SELECT nember_d_m, poid_udm, poid_f, number_f_r, poid_feb, poid_be, poid_bu, stock, unit, p_unit FROM d_mat WHERE t_id = ? AND p_num = ?", (d, num))
 
         data = cursor.fetchone()
     
     conn.close()
     
-    return render_template('dt_s_view.html', date=d, data=data)
+    return render_template('dt_s_view.html', date=d, data=data, num=num)
 
 
                                            ### stock ### 

@@ -38,7 +38,7 @@
 
 
 {% block bot %}
-<form action="/detail/view/{{ date }}/{{num}}" method="post">
+<form action="/detail/view/{{ date }}/{{num}} " method="post">
   <div class="grid-container">
     <div class="grid-item">
       <label for="ndm">Nombre de mellange:</label><br>
@@ -76,10 +76,25 @@
       <label for="pbu">poid brut unitaire:</label><br>
       <input type="text" id="pbu" name="pbu" value="{{ data[6] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="calculateTh2()"><br>
     </div>
-    <div class="grid-item"></div>
     <div class="grid-item">
       <label>Nombre fardo theorique:</label><br>
       <span id="nft2"></span>
+    </div>
+    <div class="grid-item">
+      <label for="stock">Stock:</label><br>
+      <input type="text" id="stock" name="stock" value="{{ data[7] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="calculate()"><br>
+    </div>
+    <div class="grid-item">
+      <label for="stock">Unite:</label><br>
+      <input type="text" id="unit" name="unit" value="{{ data[8] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="calculate()"><br>
+    </div>
+    <div class="grid-item">
+      <label for="stock">Prix unit:</label><br>
+      <input type="text" id="p_unit" name="p_unit" value="{{ data[9] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="calculate()"><br>
+    </div>
+    <div class="grid-item">
+      <label>Valeur du stock:</label><br>
+      <span id="v_stock"></span>
     </div>
     <div class="grid-item"></div>
   </div>
@@ -87,9 +102,12 @@
 </form>
 <script>
   var totalPoids = 0;
+  var calc3 = 0;
+
   calculateTotal();
   calculateTh();
   calculateTh2();
+  calculate();
 
   function calculateTotal() {
     var ndmValue = parseFloat(document.getElementById('ndm').value) || 0;
@@ -115,6 +133,16 @@
     var nft = pbeValue / pbuValue; 
 
     document.getElementById('nft2').textContent = nft.toFixed(2);
+  }
+
+  function calculate() {
+    var stockValue = parseFloat(document.getElementById('stock').value) || 0;
+    var unitValue = parseFloat(document.getElementById('unit').value) || 0;
+    var pUnitValue = parseFloat(document.getElementById('p_unit').value) || 0;
+
+    calc3 = stockValue * unitValue * pUnitValue;
+
+    document.getElementById('v_stock').textContent = calc3.toFixed(2);
   }
 </script>
 {% endblock %}

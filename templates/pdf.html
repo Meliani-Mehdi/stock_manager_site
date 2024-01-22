@@ -1,0 +1,38 @@
+
+{% extends 'main.html' %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+<title></title>
+{% endblock %}
+
+{% block top %}
+<a href="/stock" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+<form id="stockForm" method="POST" action="/client/view/{{ id }}/pdf">
+      <div>
+        <label class="l-lab" for="rcNumber">RC N°:</label><br>
+        <input class="l-inp" type="text" id="rcNumber" name="rcNumber" required>
+      </div>
+
+      <div>
+        <label class="l-lab" for="nif">NIF:</label><br>
+        <input class="l-inp" type="text" id="nif" name="nif" required>
+      </div>
+
+      <div>
+        <label class="l-lab" for="nPlusArt">N + ART:</label><br>
+        <input class="l-inp" type="text" id="nPlusArt" name="nPlusArt" required>
+      </div>
+
+      <div>
+        <label class="l-lab" for="adresse">ADRESSE:</label><br>
+        <input class="l-inp" type="text" id="adresse" name="adresse" required>
+      </div>
+
+      <button type="submit" class="button-19">make PDF</button>
+    </form>
+{% endblock %}
