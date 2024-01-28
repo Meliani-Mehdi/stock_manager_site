@@ -21,11 +21,11 @@
   }
 
   tr:nth-child(even) td {
-    background-color: #3a8cff;
+    background-color: #808080;
   }
 
   tr:nth-child(odd) td {
-    background-color: #4ba0ff;
+    background-color: #9c9c9c;
   }
 </style>
 {% endblock %}
@@ -58,7 +58,7 @@
     </thead>
   <tbody>
       {% for user in users %}
-      <tr onclick="window.location='/client/view/{{ user.id }}';" style="cursor: pointer;">
+      <tr onclick="window.location='/client/edit/{{ user.id }}';" style="cursor: pointer;">
         <td>{{ user.id }}</td>
         <td>{{ user.p_date }}</td>
         <td>{{ user.first_name }}</td>
