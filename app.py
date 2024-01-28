@@ -268,6 +268,70 @@ def add_client():
 
     return render_template('c_add.html')
 
+
+@app.route('/client/remove', methods=['POST', 'GET'])
+def remove_client():
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        search_date = request.form.get('search_date', None)
+        search_name = request.form.get('search_name', None)
+
+        if search_date and search_name:
+            cursor.execute('SELECT * FROM stock_data WHERE p_date = ? AND (first_name LIKE ? OR last_name LIKE ?) ORDER BY p_date DESC',(search_date, f'%{search_name}%', f'%{search_name}%'))
+        elif search_date:
+            cursor.execute('SELECT * FROM stock_data WHERE p_date = ? ORDER BY p_date DESC', (search_date,))
+        elif search_name:
+            cursor.execute('SELECT * FROM stock_data WHERE first_name LIKE ? OR last_name LIKE ? ORDER BY p_date DESC',
+                           (f'%{search_name}%', f'%{search_name}%'))
+        else:
+            cursor.execute('SELECT * FROM stock_data ORDER BY p_date DESC')
+    else:
+        cursor.execute('SELECT * FROM stock_data ORDER BY p_date DESC')
+
+    users = cursor.fetchall()
+
+    users_with_games = []
+    for user in users:
+        cursor.execute('SELECT * FROM stk_game WHERE stock_id = ?', (user[0],))
+        games = cursor.fetchall()
+        sold = 0
+        total = 0
+        for game in games:
+            total = total + (game[3]*game[4]*game[5])
+
+        sold = total - user[4]
+
+        user_with_games = {
+            'id': user[0],
+            'p_date': user[1],
+            'first_name': user[2],
+            'last_name': user[3],
+            'pay': user[4],
+            'sold': sold,
+            'total': total
+        }
+
+        users_with_games.append(user_with_games)
+
+    conn.close()
+
+    return render_template('c_remove.html', users=users_with_games)
+
+@app.route('/client/remove/<int:id>')
+def del_client(id):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    cursor.execute('DELETE FROM stk_game WHERE stock_id = ?',(id,))
+    cursor.execute('DELETE FROM stock_data WHERE id = ?',(id,))
+
+    conn.commit()
+    conn.close()
+    return redirect('/client')
+
+
 @app.route('/client/view', methods=['POST', 'GET'])
 def view_client():
     conn = sqlite3.connect('form_data.db')

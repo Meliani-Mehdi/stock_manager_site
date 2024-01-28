@@ -1,0 +1,74 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<title>Client View</title>
+<style>
+  table {
+    border-collapse: collapse;
+    width: 94%;
+    margin: 3%;
+    margin-top: 1%;
+  }
+
+  th, td {
+    border: 1px solid #333344;
+    padding: 8px;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f2f2f2;
+  }
+
+  tr:nth-child(even) td {
+    background-color: #3a8cff;
+  }
+
+  tr:nth-child(odd) td {
+    background-color: #4ba0ff;
+  }
+</style>
+{% endblock %}
+
+{% block top %}
+    <a href="/client" id="back"><div class="thick-arrow-left"></div></a>
+    <a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+  <form method="POST" action="/client/view">
+    <b><label for="search_date">Search Date:</label></b>
+    <input type="date" id="search_date" name="search_date">
+    <b><label for="search_date">Search Name:</label></b>
+    <input type="text" id="search_name" name="search_name">
+    <button type="submit">Search</button>
+  </form>
+  <h2>User Information</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Date</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Total</th>
+        <th>Payment</th>
+        <th>Sold</th>
+      </tr>
+    </thead>
+  <tbody>
+      {% for user in users %}
+      <tr onclick="window.location='/client/view/{{ user.id }}';" style="cursor: pointer;">
+        <td>{{ user.id }}</td>
+        <td>{{ user.p_date }}</td>
+        <td>{{ user.first_name }}</td>
+        <td>{{ user.last_name }}</td>
+        <td>{{ user.total }}</td>
+        <td>{{ user.pay }}</td>
+        <td>{{ user.sold }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <br>
+{% endblock %}
