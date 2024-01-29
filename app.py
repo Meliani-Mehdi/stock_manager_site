@@ -318,10 +318,16 @@ def edit_client():
 
     return render_template('c_edit.html', users=users_with_games)
 
-# @app.route('/client/remove/<int:id>', methods=['POST', 'GET'])
-# def edit_c_client(id):
-#     if request.method == 'POST':
-#
+@app.route('/client/remove/<int:id>', methods=['POST', 'GET'])
+def edit_c_client(id):
+    if request.method == 'POST':
+        conn = sqlite3.connect('form_data.db')
+        cursor = conn.cursor()
+
+        cursor.execute('')
+
+        return render_template('')
+    return render_template('c_modify.html')
 
 
 @app.route('/client/remove', methods=['POST', 'GET'])
