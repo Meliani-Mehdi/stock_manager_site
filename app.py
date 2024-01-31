@@ -20,6 +20,14 @@ cursor.execute('''
 ''')
 
 cursor.execute('''
+    CREATE TABLE IF NOT EXISTS worker (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        first_name TEXT NOT NULL,
+        last_name TEXT NOT NULL
+    )
+''')
+
+cursor.execute('''
     CREATE TABLE IF NOT EXISTS stk_game (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         g_name TEXT NOT NULL,
@@ -856,6 +864,18 @@ def update_value():
     conn.commit()
     conn.close()
     return jsonify({'success': True})
+
+@app.route('/work')
+def worker():
+    return render_template('worker.html')
+
+@app.route('/work/add')
+def add_worker():
+    return render_template('w_add.html')
+
+@app.route('/work/view')
+def view_worker():
+    return render_template('w_view.html')
 
 @app.route('/time')
 def w_time():

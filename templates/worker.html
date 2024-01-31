@@ -1,0 +1,20 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<title>Workers</title>
+{% endblock %}
+
+{% block top %}
+<a href="/main" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+  <a href="/work/view"><button type="button" class="button-19 bot">view worker</button></a>
+  <br><br>
+  <a href="/work/add"><button type="button" class="button-19 bot">Add worker</button></a>
+  <br><br>
+  <a href="/work/edit"><button type="button" class="button-19 bot">Modify worker</button></a>
+  <br><br>
+  <a href="/work/remove"><button type="button" class="button-19 bot">Delete worker</button></a>
+{% endblock %}
