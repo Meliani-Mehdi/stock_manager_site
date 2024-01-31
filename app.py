@@ -504,10 +504,8 @@ def generate_pdf(id):
         for game in games:
             total = total + (game[3] * game[4] * game[5])
 
-        sold = total - user_data[3]
-
         # Generate PDF content using fpdf
-        pdf_content = generate_pdf_content(user_data, games, sold, total, request.form.get('rcNumber'), request.form.get('nif'), request.form.get('nPlusArt'), request.form.get('adresse'))
+        pdf_content = generate_pdf_content(user_data, games, total, request.form.get('rcNumber'), request.form.get('nif'), request.form.get('nPlusArt'), request.form.get('adresse'))
 
         response = Response(pdf_content, content_type='application/pdf')
         response.headers['Content-Disposition'] = f'inline; filename=client_info_{id}.pdf'
@@ -517,97 +515,97 @@ def generate_pdf(id):
 
 
 
-def generate_pdf_content(user_data, games, sold, total, t1, t2, t3, t4):
+def generate_pdf_content(user_data, games, total, t1, t2, t3, t4):
     pdf = FPDF()
 
     pdf.add_page()
 
     # Header
     pdf.set_font("Arial", 'B', size=11)
-    pdf.cell(0, 10, txt="EURL \"EUDOX EMBALLAGE TIZI\" ")
+    pdf.cell(0, 10, "EURL \"EUDOX EMBALLAGE TIZI\" ")
     pdf.ln(5)
-    pdf.cell(0, 10, txt="RC N° 02 B 0662557", ln=True)
+    pdf.cell(0, 10, "RC N° 02 B 0662557", ln=True)
 
-    pdf.cell(0, 10, txt="ART, IMPOS, 29030453801", ln=True)
+    pdf.cell(0, 10, "ART, IMPOS, 29030453801", ln=True)
 
-    pdf.cell(0, 10, txt="N.I.F M,FISCAL 000229066255719", ln=True)
+    pdf.cell(0, 10, "N.I.F M,FISCAL 000229066255719", ln=True)
 
     #FACTURE
     pdf.set_font("Arial", 'B', size=18)
     
-    pdf.cell(0, 10, txt="FACTURE", ln=True, align='C')
+    pdf.cell(0, 10, "FACTURE", ln=True, align='C')
 
     #Date and Client
     pdf.set_font("Arial", 'B', size=9)
 
-    pdf.cell(0, 10, txt=f"Date: {user_data[2]}", ln=True, align='C')
+    pdf.cell(0, 10, f"Date: {user_data[2]}", ln=True, align='C')
 
     pdf.set_font("Arial", 'B', size=14)
 
-    pdf.cell(0, 10, txt=f"Client: {user_data[0]} {user_data[1]}", ln=True, align='C')
+    pdf.cell(0, 10, f"Client: {user_data[0]} {user_data[1]}", ln=True, align='C')
 
     pdf.set_font("Arial", 'B', size=12)
     #form info
-    pdf.cell(50, 10, txt="RC N°:", ln=False)
-    pdf.cell(50, 10, txt=t1, ln=False)
+    pdf.cell(50, 10, "RC N°:", ln=False)
+    pdf.cell(50, 10, t1, ln=False)
     pdf.ln(5)
 
-    pdf.cell(50, 10, txt="NIF:", ln=False)
-    pdf.cell(50, 10, txt=t2, ln=False)
+    pdf.cell(50, 10, "NIF:", ln=False)
+    pdf.cell(50, 10, t2, ln=False)
     pdf.ln(5)
 
-    pdf.cell(50, 10, txt="N + ART:", ln=False)
-    pdf.cell(50, 10, txt=t3, ln=False)
+    pdf.cell(50, 10, "N + ART:", ln=False)
+    pdf.cell(50, 10, t3, ln=False)
     pdf.ln(5)
 
-    pdf.cell(50, 10, txt="ADRESSE:", ln=False)
-    pdf.cell(50, 10, txt=t4, ln=False)
+    pdf.cell(50, 10, "ADRESSE:", ln=False)
+    pdf.cell(50, 10, t4, ln=False)
     pdf.ln(15)
 
     pdf.set_font("Arial", 'B', size=9)
 
     # Add table header for games
     pdf.set_fill_color(200, 220, 255)
-    pdf.cell(20, 8, txt="N°D ORDR", border=1, fill=True, align='C')
-    pdf.cell(20, 8, txt="QUANT", border=1, fill=True, align='C')
-    pdf.cell(50, 8, txt="Designation", border=1, fill=True, align='C')
-    pdf.cell(20, 8, txt="unit", border=1, fill=True, align='C')
-    pdf.cell(20, 8, txt="p/u", border=1, fill=True, align='C')
-    pdf.cell(40, 8, txt="montant", border=1, fill=True, align='C')
+    pdf.cell(20, 8, "N°D ORDR", border=1, fill=True, align='C')
+    pdf.cell(20, 8, "QUANT", border=1, fill=True, align='C')
+    pdf.cell(50, 8, "Designation", border=1, fill=True, align='C')
+    pdf.cell(20, 8, "unit", border=1, fill=True, align='C')
+    pdf.cell(20, 8, "p/u", border=1, fill=True, align='C')
+    pdf.cell(40, 8, "montant", border=1, fill=True, align='C')
     pdf.ln(8)
 
     # Add games data in a table format
     i = 0 
     for game in games:
         i += 1
-        pdf.cell(20, 8, txt=str(i), border=1, align='C')
-        pdf.cell(20, 8, txt=str(game[3]), border=1)
-        pdf.cell(50, 8, txt=str(game[1]), border=1)
-        pdf.cell(20, 8, txt=f"{game[4]}", border=1)
-        pdf.cell(20, 8, txt=f"{game[5]}.00", border=1)
-        pdf.cell(40, 8, txt=f"{game[3] * game[4] * game[5]}.00", border=1)
+        pdf.cell(20, 8, str(i), border=1, align='C')
+        pdf.cell(20, 8, str(game[3]), border=1)
+        pdf.cell(50, 8, str(game[1]), border=1)
+        pdf.cell(20, 8, f"{game[4]}", border=1)
+        pdf.cell(20, 8, f"{game[5]}.00", border=1)
+        pdf.cell(40, 8, f"{game[3] * game[4] * game[5]}.00", border=1)
         pdf.ln(8)
 
-    pdf.cell(110, 8, txt="")
-    pdf.cell(20, 8, txt="", border=1)
-    pdf.cell(40, 8, txt=f"{float(total):.2f}", border=1)
+    pdf.cell(110, 8, "")
+    pdf.cell(20, 8, "", border=1)
+    pdf.cell(40, 8, f"{float(total):.2f}", border=1)
     pdf.ln(8)
     t = total*19/100
-    pdf.cell(90, 8, txt="")
-    pdf.cell(20, 8, txt="TVA", align='C')
-    pdf.cell(20, 8, txt="19", border=1)
-    pdf.cell(40, 8, txt=f"{float(t):.2f}", border=1)
+    pdf.cell(90, 8, "")
+    pdf.cell(20, 8, "TVA", align='C')
+    pdf.cell(20, 8, "19", border=1)
+    pdf.cell(40, 8, f"{float(t):.2f}", border=1)
     pdf.ln(8)
-    pdf.cell(110, 8, txt="")
-    pdf.cell(20, 8, txt="", border=1)
-    pdf.cell(40, 8, txt=f"{float(total + t):.2f}", border=1)
+    pdf.cell(110, 8, "")
+    pdf.cell(20, 8, "", border=1)
+    pdf.cell(40, 8, f"{float(total + t):.2f}", border=1)
     pdf.ln(16)
 
     pdf.set_font("Arial", 'B', size=10)
 
-    pdf.cell(0, 8, txt="ARRETE LA PRESENTE FACTURE A LA SOMME DE : UN MILLION CENT T E VINGTS TREIZE")
+    pdf.cell(0, 8, "ARRETE LA PRESENTE FACTURE A LA SOMME DE : UN MILLION CENT T E VINGTS TREIZE")
     pdf.ln(8)
-    pdf.cell(0, 8, txt="HUIT CENT QUATRE VINGTS NEUF DINARS CINQUATE CENTIMES")
+    pdf.cell(0, 8, "HUIT CENT QUATRE VINGTS NEUF DINARS CINQUATE CENTIMES")
 
 
 
@@ -858,6 +856,10 @@ def update_value():
     conn.commit()
     conn.close()
     return jsonify({'success': True})
+
+@app.route('/time')
+def w_time():
+    return render_template('time.html')
 
 # webbrowser.open('http://localhost:5000')
 
