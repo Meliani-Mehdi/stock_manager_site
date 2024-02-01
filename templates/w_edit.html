@@ -46,7 +46,7 @@
     </thead>
   <tbody>
       {% for worker in workers %}
-      <tr onclick="window.location='';" style="cursor: pointer;">
+      <tr onclick="window.location='/work/edit/{{ worker.id }}';" style="cursor: pointer;">
         <td>{{ worker.first_name }}</td>
         <td>{{ worker.last_name }}</td>
       </tr>

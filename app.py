@@ -886,17 +886,37 @@ def edit_worker():
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
-    cursor.execute('SELECT first_name, last_name FROM worker')
+    cursor.execute('SELECT * FROM worker')
     data_f = cursor.fetchall()
     workers = []
 
     for data in data_f:
         worker = {
-            'first_name': data[0],
-            'last_name': data[1]
+            'id': data[0],
+            'first_name': data[1],
+            'last_name': data[2]
         }
         workers.append(worker)
+
+    conn.close()
     return render_template('w_edit.html', workers=workers)
+
+
+@app.route('/work/edit/<int:id>', methods=['POST', 'GET'])
+def edit_worker_id(id):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    if request.method == 'POST':
+        cursor.execute('UPDATE worker set first_name = ?, last_name = ? WHERE id = ?', (request.form.get('firstName'),request.form.get('lastName'), id))
+        conn.commit()
+        conn.close()
+        return redirect('/work')
+
+    cursor.execute('SELECT * FROM worker WHERE id = ?', (id, ))
+    data_f = cursor.fetchone()
+
+    conn.close()
+    return render_template('w_modify.html', id=data_f[0], firstName=data_f[1], lastName=data_f[2])
 
 @app.route('/work/remove')
 def remove_worker():
@@ -914,6 +934,8 @@ def remove_worker():
             'last_name': data[2]
         }
         workers.append(worker)
+
+    conn.close()
     return render_template('w_remove.html', workers=workers)
 
 @app.route('/work/remove/<int:id>')
@@ -943,6 +965,7 @@ def view_worker():
         }
         workers.append(worker)
 
+    conn.close()
     return render_template('w_view.html', workers=workers)
 
 @app.route('/time')
