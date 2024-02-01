@@ -949,6 +949,10 @@ def view_worker():
 def w_time():
     return render_template('time.html')
 
+@app.route('/time/<name>')
+def w_time_cal(name):
+    return render_template('time_cal.html', name=name)
+
 # webbrowser.open('http://localhost:5000')
 
 if __name__ == '__main__':

@@ -1,0 +1,16 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<title>Time</title>
+{% endblock %}
+
+{% block top %}
+<a href="/time" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+<a href="/time/{{ name }}/view"><button type="button" class="button-19 bot">View {{ name }}</button></a>
+  <br><br>
+<a href="/time/{{ name }}/add"><button type="button" class="button-19 bot">Add {{ name }}</button></a>
+{% endblock %}
