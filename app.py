@@ -869,13 +869,81 @@ def update_value():
 def worker():
     return render_template('worker.html')
 
-@app.route('/work/add')
+@app.route('/work/add', methods=['POST', 'GET'])
 def add_worker():
+    if request.method == 'POST':
+        conn = sqlite3.connect('form_data.db')
+        cursor = conn.cursor()
+        
+        cursor.execute('INSERT INTO worker(first_name, last_name) VALUES(?, ?)', (request.form.get('firstName'), request.form.get('lastName')))
+        conn.commit()
+        conn.close()
+        return redirect('/work')
     return render_template('w_add.html')
+
+@app.route('/work/edit')
+def edit_worker():
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT first_name, last_name FROM worker')
+    data_f = cursor.fetchall()
+    workers = []
+
+    for data in data_f:
+        worker = {
+            'first_name': data[0],
+            'last_name': data[1]
+        }
+        workers.append(worker)
+    return render_template('w_edit.html', workers=workers)
+
+@app.route('/work/remove')
+def remove_worker():
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM worker')
+    data_f = cursor.fetchall()
+    workers = []
+
+    for data in data_f:
+        worker = {
+            'id': data[0],
+            'first_name': data[1],
+            'last_name': data[2]
+        }
+        workers.append(worker)
+    return render_template('w_remove.html', workers=workers)
+
+@app.route('/work/remove/<int:id>')
+def remove_worker_id(id):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    cursor.execute('DELETE FROM worker WHERE id = ?',(id, ))
+    conn.commit()
+    conn.close()
+
+    return redirect('/work')
 
 @app.route('/work/view')
 def view_worker():
-    return render_template('w_view.html')
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT first_name, last_name FROM worker')
+    data_f = cursor.fetchall()
+    workers = []
+
+    for data in data_f:
+        worker = {
+            'first_name': data[0],
+            'last_name': data[1]
+        }
+        workers.append(worker)
+
+    return render_template('w_view.html', workers=workers)
 
 @app.route('/time')
 def w_time():
