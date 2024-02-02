@@ -6,6 +6,7 @@ body, h1, h2, h3, p, ul, li {
 body {
   font-family: Arial, sans-serif;
   background-color: #7dc7ff;
+  zoom: 80%;
 }
 
 .bg{
@@ -161,7 +162,7 @@ button.button-19:active::before {
 }
 
 #back {
-  margin-left: 32vw;
+  margin-left: 34%;
 }
 
 .close {
