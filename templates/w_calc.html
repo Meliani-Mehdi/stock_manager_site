@@ -1,0 +1,25 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+<title>Add workers</title>
+{% endblock %}
+
+{% block top %}
+<a href="/work" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+<form id="stockForm" action="/work/calc/{{ id }}" method="post">
+  <br><br><br><br>
+  <label class="l-lab" for="start">starter day:</label>
+  <label class="l-lab" for="last">last day:</label>
+  <br>
+  <input id="fn" type="date" class="l-inp" name="start" required>
+  <input id="ln" type="date" class="l-inp" name="last" required>
+  <br><br>
+  <button type="Submit" id="submitButton" class="button-19 cen">Submit</button>
+  <br><br><br>
+</form>
+{% endblock %}

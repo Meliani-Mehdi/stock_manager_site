@@ -976,19 +976,28 @@ def view_worker():
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
-    cursor.execute('SELECT first_name, last_name FROM worker')
+    cursor.execute('SELECT * FROM worker')
     data_f = cursor.fetchall()
     workers = []
 
     for data in data_f:
         worker = {
-            'first_name': data[0],
-            'last_name': data[1]
+            'id': data[0],
+            'first_name': data[1],
+            'last_name': data[2]
         }
         workers.append(worker)
 
     conn.close()
     return render_template('w_view.html', workers=workers)
+
+@app.route('/work/calc/<int:id>', methods=['POST', 'GET'])
+def calc_worker(id):
+    if request.method == 'POST':
+        sum = calc_time(request.form.get('start'), request.form.get('last'), id)
+        return render_template('w_calc_result.html', sum=sum)
+    return render_template('w_calc.html', id=id)
+
 
 @app.route('/time')
 def w_time():
