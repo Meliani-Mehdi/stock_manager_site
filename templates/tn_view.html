@@ -5,8 +5,8 @@
 <style>
 table {
   border-collapse: collapse;
-  width: 40%;
-  margin: 30%;
+  width: 70%;
+  margin: 15%;
   margin-top: 1%;
   margin-bottom: 1%;
 }
@@ -42,12 +42,16 @@ tr:nth-child(odd) td {
     <th>Full Name</th>
     <th>Entry Time</th>
     <th>Exit Time</th>
+    <th>Emargement</th>
+    <th>Observation</th>
   </tr>
   {% for result in results %}
   <tr>
     <td>{{ result[0] }}</td>
     <td>{{ result[1] }}</td>
     <td>{{ result[2] }}</td>
+    <td>{{ result[3] }}</td>
+    <td>{{ result[4] }}</td>
   </tr>
   {% endfor %}
 </table>

@@ -35,7 +35,9 @@ cursor.execute('''
         date TEXT NOT NULL,
         entree_time TEXT NOT NULL,
         exit_time TEXT NOT NULL,
-        FOREIGN KEY (worker_id) REFERENCES worker(id)
+        emargement TEXT,
+        observation TEXT,
+        FOREIGN KEY (worker_id) REFERENCES worker(id) ON DELETE CASCADE
     )
 ''')
 
@@ -539,7 +541,6 @@ def generate_pdf_content(user_data, games, total, t1, t2, t3, t4):
 
     pdf.add_page()
 
-    # Header
     pdf.set_font("Arial", 'B', size=11)
     pdf.cell(0, 10, "EURL \"EUDOX EMBALLAGE TIZI\" ")
     pdf.ln(5)
@@ -549,12 +550,10 @@ def generate_pdf_content(user_data, games, total, t1, t2, t3, t4):
 
     pdf.cell(0, 10, "N.I.F M,FISCAL 000229066255719", ln=True)
 
-    #FACTURE
     pdf.set_font("Arial", 'B', size=18)
 
     pdf.cell(0, 10, "FACTURE", ln=True, align='C')
 
-    #Date and Client
     pdf.set_font("Arial", 'B', size=9)
 
     pdf.cell(0, 10, f"Date: {user_data[2]}", ln=True, align='C')
@@ -564,7 +563,7 @@ def generate_pdf_content(user_data, games, total, t1, t2, t3, t4):
     pdf.cell(0, 10, f"Client: {user_data[0]} {user_data[1]}", ln=True, align='C')
 
     pdf.set_font("Arial", 'B', size=12)
-    #form info
+
     pdf.cell(50, 10, "RC N°:", ln=False)
     pdf.cell(50, 10, t1, ln=False)
     pdf.ln(5)
@@ -583,7 +582,6 @@ def generate_pdf_content(user_data, games, total, t1, t2, t3, t4):
 
     pdf.set_font("Arial", 'B', size=9)
 
-    # Add table header for games
     pdf.set_fill_color(200, 220, 255)
     pdf.cell(20, 8, "N°D ORDR", border=1, fill=True, align='C')
     pdf.cell(20, 8, "QUANT", border=1, fill=True, align='C')
@@ -593,7 +591,6 @@ def generate_pdf_content(user_data, games, total, t1, t2, t3, t4):
     pdf.cell(40, 8, "montant", border=1, fill=True, align='C')
     pdf.ln(8)
 
-    # Add games data in a table format
     i = 0 
     for game in games:
         i += 1
@@ -626,7 +623,6 @@ def generate_pdf_content(user_data, games, total, t1, t2, t3, t4):
     pdf.ln(8)
     pdf.cell(0, 8, "HUIT CENT QUATRE VINGTS NEUF DINARS CINQUATE CENTIMES")
 
-    # Save the pdf with name .pdf
     pdf_output = pdf.output(dest='S').encode('latin1')
 
     return pdf_output
@@ -957,6 +953,24 @@ def remove_worker_id(id):
 
     return redirect('/work')
 
+def calc_time(start, finish, worker_id):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    query = '''
+        SELECT SUM(CAST((julianday(exit_time) - julianday(entree_time)) * 24 AS REAL)) AS total_hours
+        FROM w_time
+        WHERE worker_id = ? AND date BETWEEN ? AND ?
+    '''
+
+    cursor.execute(query, (worker_id, start, finish))
+
+    result = cursor.fetchone()
+
+    conn.close()
+
+    return result[0] if result[0] is not None else 0
+
 @app.route('/work/view')
 def view_worker():
     conn = sqlite3.connect('form_data.db')
@@ -990,7 +1004,21 @@ def w_time_add(name):
     cursor = conn.cursor()
     current_date = datetime.now().strftime("%Y-%m-%d")
     if request.method == 'POST':
-        cursor.execute('INSERT INTO w_time (worker_id, t_type, date, entree_time, exit_time) VALUES(?, ?, ?, ?, ?)', (request.form.get('workerSelector'), name, current_date, request.form.get('entryTime'), request.form.get('departureTime')))
+        worker_id = request.form.get('workerSelector')
+        t_type = name
+        date = current_date
+        entree_time = request.form.get('entryTime')
+        exit_time = request.form.get('departureTime')
+        emargement = request.form.get('emargement')
+        observation = request.form.get('observation')
+
+        query = '''
+            INSERT INTO w_time 
+            (worker_id, t_type, date, entree_time, exit_time, emargement, observation)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        '''
+
+        cursor.execute(query, (worker_id, t_type, date, entree_time, exit_time, emargement, observation))
 
         conn.commit()
         conn.close()
@@ -1011,6 +1039,50 @@ def w_time_add(name):
     conn.close()
     return render_template('tn_add.html', name=name, workers=workers)
 
+
+@app.route('/time/<name>/remove')
+def w_time_remove_list(name):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT DISTINCT date
+        FROM w_time
+        WHERE t_type = ?
+    ''', (name,))
+    dates = cursor.fetchall()
+
+    return render_template('tn_date_remove.html', dates=dates, name=name)
+
+@app.route('/time/<name>/<date>/remove')
+def w_time_remove(name, date):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT worker.first_name || ' ' || worker.last_name AS full_name,
+               w_time.entree_time,
+               w_time.exit_time,
+               w_time.emargement,
+               w_time.observation,
+               w_time.id
+        FROM w_time
+        INNER JOIN worker ON w_time.worker_id = worker.id
+        WHERE w_time.t_type = ? AND w_time.date = ?
+    ''', (name, date))
+
+    results = cursor.fetchall()
+    conn.close()
+
+    return render_template('tn_remove.html', results=results, name=name, date=date)
+
+@app.route('/time/<name>/<date>/remove/<int:id>')
+def remove_time_id(name, date, id):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM w_time WHERE id = ?',(id,))
+    conn.commit()
+    conn.close()
+    return redirect('/time/'+ name)
+
 @app.route('/time/<name>/view')
 def w_time_view_list(name):
     conn = sqlite3.connect('form_data.db')
@@ -1024,11 +1096,30 @@ def w_time_view_list(name):
 
     return render_template('tn_date_view.html', dates=dates, name=name)
 
-def time_PDF():
+def time_PDF(n_type, date, workers):
     pdf = FPDF()
+    pdf = FPDF(orientation='L')
 
     pdf.add_page()
-    pdf.cell(40, 8, "", border=1)
+    pdf.set_font("Arial", 'B', size=18)
+    pdf.cell(150, 10, "ETAT DE POINTAGE " + n_type)
+    pdf.cell(30, 10, "DU : " + date)
+    pdf.set_font("Arial", 'B', size=10)
+
+    pdf.ln(20)
+    pdf.cell(85, 15, "NOMS ET PRENOMS", border=1)
+    pdf.cell(45, 15, "HEURE D ENTREE", border=1, align='C')
+    pdf.cell(45, 15, "HEURE D SORTIE", border=1, align='C')
+    pdf.cell(45, 15, "EMARGEMENT", border=1, align='C')
+    pdf.cell(45, 15, "OBSERVATION", border=1, align='C')
+    pdf.ln(15)
+    for worker in workers:
+        pdf.cell(85, 10, worker[0], border=1)
+        pdf.cell(45, 10, worker[1], border=1, align='C')
+        pdf.cell(45, 10, worker[2], border=1, align='C')
+        pdf.cell(45, 10, worker[3], border=1, align='C')
+        pdf.cell(45, 10, worker[4], border=1, align='C')
+        pdf.ln(10)
 
     pdf_output = pdf.output(dest='S').encode('latin1')
     return pdf_output
@@ -1036,15 +1127,14 @@ def time_PDF():
 
 @app.route('/time/<name>/<date>/view', methods=['POST', 'GET'])
 def w_time_view(name, date):
-    if request.method == 'POST':
-        response = time_PDF()
-        return response
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
     cursor.execute('''
         SELECT worker.first_name || ' ' || worker.last_name AS full_name,
                w_time.entree_time,
-               w_time.exit_time
+               w_time.exit_time,
+               w_time.emargement,
+               w_time.observation
         FROM w_time
         INNER JOIN worker ON w_time.worker_id = worker.id
         WHERE w_time.t_type = ? AND w_time.date = ?
@@ -1052,6 +1142,11 @@ def w_time_view(name, date):
 
     results = cursor.fetchall()
     conn.close()
+    if request.method == 'POST':
+        pdf = time_PDF(name, date, results)
+        response = Response(pdf, content_type='application/pdf')
+        response.headers['Content-Disposition'] = f'inline; filename=workers_time_{name}.pdf'
+        return response
 
     return render_template('tn_view.html', results=results, name=name, date=date)
 

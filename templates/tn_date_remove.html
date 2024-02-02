@@ -21,11 +21,11 @@
   }
 
   tr:nth-child(even) td {
-    background-color: #3a8cff;
+    background-color: #ff5c5c;
   }
 
   tr:nth-child(odd) td {
-    background-color: #4ba0ff;
+    background-color: #ff7e7e;
   }
 </style>
 {% endblock %}
@@ -42,7 +42,7 @@
   </tr>
   {% for date in dates %}
   <tr>
-    <td onclick="window.location='/time/{{ name }}/{{ date[0] }}/view';" style="cursor: pointer;">{{ date[0] }}</td>
+    <td onclick="window.location='/time/{{ name }}/{{ date[0] }}/remove';" style="cursor: pointer;">{{ date[0] }}</td>
   </tr>
   {% endfor %}
 </table>

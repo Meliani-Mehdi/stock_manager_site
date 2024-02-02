@@ -12,16 +12,7 @@
 
 {% block bot %}
 <form id="stockForm" action="/time/{{ name }}/add" method="post" onsubmit="return validateForm()">
-  <br><br><br><br>
-  
-  <label class="l-lab" for="entryTime">Time of Entry:</label>
-  <input class="l-inp" type="time" id="entryTime" name="entryTime" required>
-  <br><br>
-  
-  <label class="l-lab" for="departureTime">Departure Time:</label>
-  <input class="l-inp" type="time" id="departureTime" name="departureTime" required>
-  <br><br>
-  
+  <br>
   <label class="l-lab" for="workerSelector">Select Worker:</label>
   <select class="l-inp" id="workerSelector" name="workerSelector" required>
     {% for worker in workers %}
@@ -29,6 +20,22 @@
     {% endfor %}
   </select>
   <br><br>
+  
+  <label class="l-lab" for="entryTime">Time of Entry:</label>
+  <input class="l-inp" type="time" id="entryTime" name="entryTime" required>
+  <br><br>
+  
+  <label class="l-lab" for="departureTime">Departure Time:</label>
+  <input class="l-inp" type="time" id="departureTime" name="departureTime" required>
+  
+  <br><br>
+  <label class="l-lab" for="emargement">Emargement:</label>
+  <input class="l-inp" type="text" id="emargement" name="emargement">
+  <br><br>
+
+  <label class="l-lab" for="observation">Observation:</label>
+  <input class="l-inp" type="text" id="observation" name="observation">
+  <br>
   
   <button type="submit" id="submitButton" class="button-19 cen">Submit</button>
   <br><br><br>
