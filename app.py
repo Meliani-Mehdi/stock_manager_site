@@ -28,6 +28,18 @@ cursor.execute('''
 ''')
 
 cursor.execute('''
+    CREATE TABLE IF NOT EXISTS w_time (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        worker_id INTEGER,
+        t_type TEXT NOT NULL,
+        date TEXT NOT NULL,
+        entree_time TEXT NOT NULL,
+        exit_time TEXT NOT NULL,
+        FOREIGN KEY (worker_id) REFERENCES worker(id)
+    )
+''')
+
+cursor.execute('''
     CREATE TABLE IF NOT EXISTS stk_game (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         g_name TEXT NOT NULL,
@@ -138,7 +150,6 @@ def insert_daily_data():
     cursor = conn.cursor()
 
     current_date = datetime.now().strftime("%Y-%m-%d")
-    print(current_date)
 
     cursor.execute('SELECT COUNT(*) FROM stv WHERE date = ?', (current_date,))
     count = cursor.fetchone()[0]
@@ -188,7 +199,7 @@ def insert_daily_data():
                         ?, 0, 0, ?, 0, 0, ?, 0, 0, ?, 0, 0, ?, 0, 0, ?, 0, 0)
             ''', (current_date, MM_super_st, MM_Fardeaux_st, GMM_st, GMM_x25_st, GMM_x30_st, MM_IMP_MANTOUDJ_st, PM_st, GM_IMP_st, GM_IMP_x20_st, PAIN_st, POUBELLE_BASE_st, POUBELLE_st, CONGELATION_st, GGM_st, WELCOME_st))
 
-        
+
     cursor.execute('SELECT COUNT(*) FROM upt WHERE date = ?', (current_date,))
     count = cursor.fetchone()[0]
 
@@ -225,7 +236,7 @@ def index():
 def homepage():
     return render_template('main.html')
 
-                                           ### client ### 
+    ### client ### 
 
 @app.route('/client')
 def client():
@@ -469,7 +480,7 @@ def view_c_game(id):
 
         conn.close()
         return redirect('/client/view')
-        
+
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
@@ -540,7 +551,7 @@ def generate_pdf_content(user_data, games, total, t1, t2, t3, t4):
 
     #FACTURE
     pdf.set_font("Arial", 'B', size=18)
-    
+
     pdf.cell(0, 10, "FACTURE", ln=True, align='C')
 
     #Date and Client
@@ -615,9 +626,6 @@ def generate_pdf_content(user_data, games, total, t1, t2, t3, t4):
     pdf.ln(8)
     pdf.cell(0, 8, "HUIT CENT QUATRE VINGTS NEUF DINARS CINQUATE CENTIMES")
 
-
-
-
     # Save the pdf with name .pdf
     pdf_output = pdf.output(dest='S').encode('latin1')
 
@@ -643,7 +651,7 @@ def view_c_pay(id):
 
 
 
-                                           ### detail ### 
+    ### detail ### 
 
 
 @app.route('/detail')
@@ -747,13 +755,13 @@ def view_stock_d_detail(d,num):
         cursor.execute("SELECT nember_d_m, poid_udm, poid_f, number_f_r, poid_feb, poid_be, poid_bu, stock, unit, p_unit FROM d_mat WHERE t_id = ? AND p_num = ?", (d, num))
 
         data = cursor.fetchone()
-    
+
     conn.close()
-    
+
     return render_template('dt_s_view.html', date=d, data=data, num=num)
 
 
-                                           ### stock ### 
+    ### stock ### 
 
 
 @app.route('/stock')
@@ -874,7 +882,7 @@ def add_worker():
     if request.method == 'POST':
         conn = sqlite3.connect('form_data.db')
         cursor = conn.cursor()
-        
+
         cursor.execute('INSERT INTO worker(first_name, last_name) VALUES(?, ?)', (request.form.get('firstName'), request.form.get('lastName')))
         conn.commit()
         conn.close()
@@ -975,6 +983,77 @@ def w_time():
 @app.route('/time/<name>')
 def w_time_cal(name):
     return render_template('time_cal.html', name=name)
+
+@app.route('/time/<name>/add', methods=['POST', 'GET'])
+def w_time_add(name):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    if request.method == 'POST':
+        cursor.execute('INSERT INTO w_time (worker_id, t_type, date, entree_time, exit_time) VALUES(?, ?, ?, ?, ?)', (request.form.get('workerSelector'), name, current_date, request.form.get('entryTime'), request.form.get('departureTime')))
+
+        conn.commit()
+        conn.close()
+
+        return redirect('/time/' + name)
+
+    cursor.execute('SELECT * FROM worker')
+    data_f = cursor.fetchall()
+    workers = []
+
+    for data in data_f:
+        worker = {
+            'id': data[0],
+            'name': data[1] + " " + data[2]
+        }
+        workers.append(worker)
+
+    conn.close()
+    return render_template('tn_add.html', name=name, workers=workers)
+
+@app.route('/time/<name>/view')
+def w_time_view_list(name):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT DISTINCT date
+        FROM w_time
+        WHERE t_type = ?
+    ''', (name,))
+    dates = cursor.fetchall()
+
+    return render_template('tn_date_view.html', dates=dates, name=name)
+
+def time_PDF():
+    pdf = FPDF()
+
+    pdf.add_page()
+    pdf.cell(40, 8, "", border=1)
+
+    pdf_output = pdf.output(dest='S').encode('latin1')
+    return pdf_output
+    
+
+@app.route('/time/<name>/<date>/view', methods=['POST', 'GET'])
+def w_time_view(name, date):
+    if request.method == 'POST':
+        response = time_PDF()
+        return response
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT worker.first_name || ' ' || worker.last_name AS full_name,
+               w_time.entree_time,
+               w_time.exit_time
+        FROM w_time
+        INNER JOIN worker ON w_time.worker_id = worker.id
+        WHERE w_time.t_type = ? AND w_time.date = ?
+    ''', (name, date))
+
+    results = cursor.fetchall()
+    conn.close()
+
+    return render_template('tn_view.html', results=results, name=name, date=date)
 
 # webbrowser.open('http://localhost:5000')
 
