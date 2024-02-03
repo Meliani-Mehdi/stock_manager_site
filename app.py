@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, jsonify, Response
 from fpdf import FPDF
 from datetime import datetime
 import sqlite3
-import webbrowser
 
 app = Flask(__name__)
 
@@ -958,7 +957,7 @@ def calc_time(start, finish, worker_id):
     cursor = conn.cursor()
 
     query = '''
-        SELECT SUM(CAST((julianday(exit_time) - julianday(entree_time)) * 24 AS REAL)) AS total_hours
+        SELECT CEIL(SUM(CAST((julianday(exit_time) - julianday(entree_time)) * 24 AS REAL))) AS rounded_total_hours
         FROM w_time
         WHERE worker_id = ? AND date BETWEEN ? AND ?
     '''
@@ -1057,6 +1056,7 @@ def w_time_remove_list(name):
         SELECT DISTINCT date
         FROM w_time
         WHERE t_type = ?
+        ORDER BY date DESC;
     ''', (name,))
     dates = cursor.fetchall()
 
@@ -1100,6 +1100,7 @@ def w_time_view_list(name):
         SELECT DISTINCT date
         FROM w_time
         WHERE t_type = ?
+        ORDER BY date DESC;
     ''', (name,))
     dates = cursor.fetchall()
 
@@ -1159,7 +1160,6 @@ def w_time_view(name, date):
 
     return render_template('tn_view.html', results=results, name=name, date=date)
 
-# webbrowser.open('http://localhost:5000')
 
 if __name__ == '__main__':
     app.run(debug=True)
