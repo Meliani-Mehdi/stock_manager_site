@@ -91,28 +91,28 @@
 
 {% block bot %}
   <form method="POST" action="/client/remove">
-    <b><label for="search_date">Search Date:</label></b>
+    <b><label for="search_date">Recherche par date:</label></b>
     <input type="date" id="search_date" name="search_date">
-    <b><label for="search_date">Search Name:</label></b>
+    <b><label for="search_date">Recherche par nom:</label></b>
     <input type="text" id="search_name" name="search_name">
-    <button type="submit">Search</button>
+    <button type="submit">Recherche</button>
   </form>
   <div class="overlay" id="overlay"></div>
   <div class="custom-popup" id="customPopup">
-    <p>Are you sure you want to delete this file?</p>
-    <button onclick="deleteFile()" class="yes">Yes</button>
-    <button onclick="closePopup()" class="no">No</button>
+  <p>Voulez vous vraiment supprimer ce fichie?</p>
+  <button onclick="deleteFile()" class="yes">Oui</button>
+  <button onclick="closePopup()" class="no">Non</button>
   </div>
-  <h2>User Information</h2>
+  <h2>Information des clients</h2>
   <table>
     <thead>
       <tr>
         <th>ID</th>
         <th>Date</th>
-        <th>First Name</th>
-        <th>Last Name</th>
+        <th>Nom</th>
+        <th>Prenom</th>
         <th>Total</th>
-        <th>Payment</th>
+        <th>Versement</th>
         <th>Sold</th>
       </tr>
     </thead>

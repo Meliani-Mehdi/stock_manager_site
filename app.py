@@ -1,7 +1,10 @@
 from flask import Flask, render_template, request, redirect, jsonify, Response
 from fpdf import FPDF
 from datetime import datetime
+import webview
 import sqlite3
+
+from webview import window
 
 app = Flask(__name__)
 
@@ -957,7 +960,7 @@ def calc_time(start, finish, worker_id):
     cursor = conn.cursor()
 
     query = '''
-        SELECT CEIL(SUM(CAST((julianday(exit_time) - julianday(entree_time)) * 24 AS REAL))) AS rounded_total_hours
+        SELECT SUM(CAST((julianday(exit_time) - julianday(entree_time) * 24 AS REAL))) AS rounded_total_hours
         FROM w_time
         WHERE worker_id = ? AND date BETWEEN ? AND ?
     '''
@@ -1163,3 +1166,5 @@ def w_time_view(name, date):
 
 if __name__ == '__main__':
     app.run(debug=True)
+    # window = webview.create_window('stock', app)
+    # webview.start()

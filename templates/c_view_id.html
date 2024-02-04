@@ -48,10 +48,10 @@
 <h2>Client: {{ user_data[0] }} {{ user_data[1] }}</h2>
 <table>
   <tr>
-    <th>Game Name</th>
-    <th>Number</th>
-    <th>Unit</th>
-    <th>Unit Price</th>
+    <th>Game</th>
+    <th>Nombre</th>
+    <th>Unite</th>
+    <th>Prix d'Unite</th>
     <th>Total</th>
   </tr>
   {% for game in games %}
@@ -67,7 +67,7 @@
 <table class="p" onclick="window.location='/client/view/{{ id }}/payment';" style="cursor: pointer;">
   <tr>
     <th>Total</th>
-    <th>Payment</th>
+    <th>Versement</th>
     <th>Sold</th>
   </tr>
   <tr>
@@ -80,9 +80,9 @@
 <form method="POST" action="/client/view/{{ id }}">
   <input type="number" id="pay" name="pay" required>
   <br>
-  <button type="submit" class="button-19">add payment</button>
+  <button type="submit" class="button-19">Ajoute versement</button>
 </form>
 <br>
-<button class="button-19" onclick="window.location='/client/view/{{ id }}/makePDF'" >Make PDF</button>
+<button class="button-19" onclick="window.location='/client/view/{{ id }}/makePDF'" >PDF</button>
 <br>
 {% endblock %}

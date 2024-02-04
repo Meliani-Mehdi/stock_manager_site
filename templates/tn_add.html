@@ -13,7 +13,7 @@
 {% block bot %}
 <form id="stockForm" action="/time/{{ name }}/add" method="post" onsubmit="return validateForm()">
   <br>
-  <label class="l-lab" for="workerSelector">Select Worker:</label>
+  <label class="l-lab" for="workerSelector">selction employee:</label>
   <select class="l-inp" id="workerSelector" name="workerSelector" required>
     {% for worker in workers %}
       <option value="{{ worker.id }}">{{ worker.name }}</option>
@@ -21,11 +21,11 @@
   </select>
   <br><br>
   
-  <label class="l-lab" for="entryTime">Time of Entry:</label>
+  <label class="l-lab" for="entryTime">Temp d'entrer:</label>
   <input class="l-inp" type="time" id="entryTime" name="entryTime" required>
   <br><br>
   
-  <label class="l-lab" for="departureTime">Departure Time:</label>
+  <label class="l-lab" for="departureTime">Temp de sortie:</label>
   <input class="l-inp" type="time" id="departureTime" name="departureTime" required>
   
   <br><br>
@@ -37,7 +37,7 @@
   <input class="l-inp" type="text" id="observation" name="observation">
   <br>
   
-  <button type="submit" id="submitButton" class="button-19 cen">Submit</button>
+  <button type="submit" id="submitButton" class="button-19 cen">Enregistrer</button>
   <br><br><br>
 </form>
 
@@ -48,8 +48,7 @@
     var submitButton = document.getElementById("submitButton");
 
     if (entryTime >= departureTime) {
-      alert("Departure time must be later than the entry time");
-      return false;
+      alert("Departure time must be later than the entry time ");
     }
 
     return true;
