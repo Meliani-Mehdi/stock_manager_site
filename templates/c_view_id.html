@@ -83,6 +83,6 @@
   <button type="submit" class="button-19">Ajoute versement</button>
 </form>
 <br>
-<button class="button-19" onclick="window.location='/client/view/{{ id }}/makePDF'" >PDF</button>
+<button class="button-19" onclick="window.open('/client/view/{{ id }}/makePDF', '_blank')" >PDF</button>
 <br>
 {% endblock %}

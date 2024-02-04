@@ -1,10 +1,8 @@
 from flask import Flask, render_template, request, redirect, jsonify, Response
 from fpdf import FPDF
-from datetime import datetime
+from datetime import datetime, timedelta
 import webview
 import sqlite3
-
-from webview import window
 
 app = Flask(__name__)
 
@@ -17,7 +15,7 @@ cursor.execute('''
         p_date DATE NOT NULL,
         first_name TEXT NOT NULL,
         last_name TEXT NOT NULL,
-        payment INTEGER NOT NULL
+        payment REAL NOT NULL
     )
 ''')
 
@@ -39,7 +37,7 @@ cursor.execute('''
         exit_time TEXT NOT NULL,
         emargement TEXT,
         observation TEXT,
-        FOREIGN KEY (worker_id) REFERENCES worker(id) ON DELETE CASCADE
+        FOREIGN KEY (worker_id) REFERENCES worker(id)
     )
 ''')
 
@@ -50,7 +48,7 @@ cursor.execute('''
         stock_id INTEGER,
         number INTEGER NOT NULL,
         unit INTEGER NOT NULL,
-        unit_price INTEGER NOT NULL,
+        unit_price REAL NOT NULL,
         FOREIGN KEY (stock_id) REFERENCES stock_data(id)
     )
 ''')
@@ -60,7 +58,7 @@ cursor.execute('''
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         c_id INTEGER,
         date TEXT NOT NULL,
-        pay INTEGER NOT NULL,
+        pay REAL NOT NULL,
         FOREIGN KEY (c_id) REFERENCES stock_data(id)
     )
 ''')
@@ -123,7 +121,7 @@ cursor.execute('''
         date TEXT NOT NULL,
         num INTEGER NOT NULL,
         u INTEGER NOT NULL,
-        up INTEGER NOT NULL
+        up REAL NOT NULL
     )
 ''')
 
@@ -134,15 +132,15 @@ cursor.execute('''
         date TEXT NOT NULL,
         p_num INTEGER NOT NULL,
         nember_d_m INTEGER,
-        poid_udm REEL,
-        poid_f RELL,
-        number_f_r RELL,
-        poid_feb RELL,
-        poid_be RELL,
-        poid_bu RELL,
+        poid_udm REAL,
+        poid_f REAL,
+        number_f_r REAL,
+        poid_feb REAL,
+        poid_be REAL,
+        poid_bu REAL,
         stock INTEGER,
-        unit REEL,
-        p_unit REEL
+        unit REAL,
+        p_unit REAL
     )
 ''')
 
@@ -154,6 +152,36 @@ def insert_daily_data():
     cursor = conn.cursor()
 
     current_date = datetime.now().strftime("%Y-%m-%d")
+    cursor.execute('SELECT * FROM stv')
+    test = cursor.fetchone()
+
+    if test is None:
+        cursor.execute('''
+            INSERT INTO stv (
+                date,
+                MM_super_st, MM_super_e, MM_super_so,
+                MM_Fardeaux_st, MM_Fardeaux_e, MM_Fardeaux_so,
+                GMM_st, GMM_e, GMM_so,
+                GMM_x25_st, GMM_x25_e, GMM_x25_so,
+                GMM_x30_st, GMM_x30_e, GMM_x30_so,
+                MM_IMP_MANTOUDJ_st, MM_IMP_MANTOUDJ_e, MM_IMP_MANTOUDJ_so,
+                PM_st, PM_e, PM_so,
+                GM_IMP_st, GM_IMP_e, GM_IMP_so,
+                GM_IMP_x20_st, GM_IMP_x20_e, GM_IMP_x20_so,
+                PAIN_st, PAIN_e, PAIN_so,
+                POUBELLE_BASE_st, POUBELLE_BASE_e, POUBELLE_BASE_so,
+                POUBELLE_st, POUBELLE_e, POUBELLE_so,
+                CONGELATION_st, CONGELATION_e, CONGELATION_so,
+                GGM_st, GGM_e, GGM_so,
+                WELCOME_st, WELCOME_e, WELCOME_so
+            ) VALUES (?, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        ''', ( current_date,))
+        
+        for i in range(15):
+            cursor.execute('''
+                INSERT INTO upt (date, num, u, up)
+                VALUES (?, ?, 0, 0)
+            ''',(current_date, i))
 
     cursor.execute('SELECT COUNT(*) FROM stv WHERE date = ?', (current_date,))
     count = cursor.fetchone()[0]
@@ -291,68 +319,6 @@ def add_client():
 
     return render_template('c_add.html')
 
-@app.route('/client/edit', methods=['POST', 'GET'])
-def edit_client():
-    conn = sqlite3.connect('form_data.db')
-    cursor = conn.cursor()
-
-    if request.method == 'POST':
-        search_date = request.form.get('search_date', None)
-        search_name = request.form.get('search_name', None)
-
-        if search_date and search_name:
-            cursor.execute('SELECT * FROM stock_data WHERE p_date = ? AND (first_name LIKE ? OR last_name LIKE ?) ORDER BY p_date DESC',(search_date, f'%{search_name}%', f'%{search_name}%'))
-        elif search_date:
-            cursor.execute('SELECT * FROM stock_data WHERE p_date = ? ORDER BY p_date DESC', (search_date,))
-        elif search_name:
-            cursor.execute('SELECT * FROM stock_data WHERE first_name LIKE ? OR last_name LIKE ? ORDER BY p_date DESC',
-                           (f'%{search_name}%', f'%{search_name}%'))
-        else:
-            cursor.execute('SELECT * FROM stock_data ORDER BY p_date DESC')
-    else:
-        cursor.execute('SELECT * FROM stock_data ORDER BY p_date DESC')
-
-    users = cursor.fetchall()
-
-    users_with_games = []
-    for user in users:
-        cursor.execute('SELECT * FROM stk_game WHERE stock_id = ?', (user[0],))
-        games = cursor.fetchall()
-        sold = 0
-        total = 0
-        for game in games:
-            total = total + (game[3]*game[4]*game[5])
-
-        sold = total - user[4]
-
-        user_with_games = {
-            'id': user[0],
-            'p_date': user[1],
-            'first_name': user[2],
-            'last_name': user[3],
-            'pay': user[4],
-            'sold': sold,
-            'total': total
-        }
-
-        users_with_games.append(user_with_games)
-
-    conn.close()
-
-    return render_template('c_edit.html', users=users_with_games)
-
-@app.route('/client/remove/<int:id>', methods=['POST', 'GET'])
-def edit_c_client(id):
-    if request.method == 'POST':
-        conn = sqlite3.connect('form_data.db')
-        cursor = conn.cursor()
-
-        cursor.execute('')
-
-        return render_template('')
-    return render_template('c_modify.html')
-
-
 @app.route('/client/remove', methods=['POST', 'GET'])
 def remove_client():
     conn = sqlite3.connect('form_data.db')
@@ -407,6 +373,22 @@ def remove_client():
 def del_client(id):
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
+    current_date = datetime.now().strftime("%Y-%m-%d")
+
+    cursor.execute("""SELECT g_name, number
+                    FROM stk_game 
+                    WHERE stock_id = ?
+                    """
+                   ,(id,))
+    dups = cursor.fetchall()
+    for d in dups:
+        updated_game = d[0].replace(' ', '_') + '_so'
+        cursor.execute(f"SELECT {updated_game} FROM stv WHERE date = ?", (current_date,))
+        old_v = cursor.fetchone()
+
+        if old_v:
+            new_v = old_v[0] - int(d[1])
+            cursor.execute(f"UPDATE stv SET {updated_game} = ? WHERE date = ?", (new_v, current_date))
 
     cursor.execute('DELETE FROM stk_game WHERE stock_id = ?',(id,))
     cursor.execute('DELETE FROM stock_data WHERE id = ?',(id,))
@@ -949,6 +931,7 @@ def remove_worker_id(id):
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
+    cursor.execute('DELETE FROM w_time WHERE worker_id = ?', (id, ))
     cursor.execute('DELETE FROM worker WHERE id = ?',(id, ))
     conn.commit()
     conn.close()
@@ -959,19 +942,25 @@ def calc_time(start, finish, worker_id):
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
-    query = '''
-        SELECT SUM(CAST((julianday(exit_time) - julianday(entree_time) * 24 AS REAL))) AS rounded_total_hours
-        FROM w_time
-        WHERE worker_id = ? AND date BETWEEN ? AND ?
-    '''
+    cursor.execute('SELECT exit_time, entree_time FROM w_time WHERE worker_id = ? AND date BETWEEN ? AND ?', (worker_id, start, finish))
 
-    cursor.execute(query, (worker_id, start, finish))
+    results = cursor.fetchall()
+    
+    total_time = timedelta()
+    
+    for exit_time_str, entry_time_str in results:
+        entry_time = datetime.strptime(entry_time_str, '%H:%M')
+        exit_time = datetime.strptime(exit_time_str, '%H:%M')
 
-    result = cursor.fetchone()
+        if entry_time > exit_time:
+
+            exit_time += timedelta(days=1)
+        
+        total_time += exit_time - entry_time
 
     conn.close()
 
-    return result[0] if result[0] is not None else 0
+    return total_time
 
 @app.route('/work/view')
 def view_worker():
@@ -1165,6 +1154,6 @@ def w_time_view(name, date):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
-    # window = webview.create_window('stock', app)
-    # webview.start()
+    # app.run(debug=True)
+    window = webview.create_window('stock', app)
+    webview.start()
