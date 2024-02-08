@@ -264,6 +264,10 @@ def index():
             return redirect('/main')
     return render_template('login.html')
 
+@app.route('/game')
+def game():
+    return render_template('game.html')
+
 @app.route('/main')
 def homepage():
     return render_template('main.html')

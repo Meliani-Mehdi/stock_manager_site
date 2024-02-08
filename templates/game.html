@@ -1,0 +1,20 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<title>Game</title>
+{% endblock %}
+
+{% block top %}
+<a href="/main" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+  <a href="/game/view"><button type="button" class="button-19 bot">Voir list de Games</button></a>
+  <br><br>
+  <a href="/game/add"><button type="button" class="button-19 bot">Ajoute une Game</button></a>
+  <br><br>
+  <a href="/game/edit"><button type="button" class="button-19 bot">Modifie une Game</button></a>
+  <br><br>
+  <a href="/game/remove"><button type="button" class="button-19 bot">Supprimer une Game</button></a>
+{% endblock %}
