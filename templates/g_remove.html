@@ -1,0 +1,132 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<title>Voir list des games</title>
+<style>
+  table {
+    border-collapse: collapse;
+    width: 40%;
+    margin: 30%;
+    margin-top: 1%;
+  }
+
+  th, td {
+    border: 1px solid #333344;
+    padding: 8px;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f2f2f2;
+  }
+
+  tr:nth-child(even) td {
+    background-color: #ff5c5c;
+  }
+
+  tr:nth-child(odd) td {
+    background-color: #ff7e7e;
+  }
+
+  .custom-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    border-radius: 5px;
+    max-width: 400px;
+    text-align: center;
+  }
+
+  .custom-popup p {
+    margin-bottom: 15px;
+  }
+
+  .custom-popup button {
+    padding: 8px 15px;
+    border: none;
+    cursor: pointer;
+    border-radius: 3px;
+    margin: 0 5px;
+    font-size: 14px;
+  }
+
+  .custom-popup button.yes {
+    background-color: #ff5c5c;
+    color: #fff;
+  }
+
+  .custom-popup button.no {
+    background-color: #5cb85c; 
+    color: #fff;
+  }
+
+  .custom-popup button:hover {
+    opacity: 0.8;
+  }
+
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+</style>
+{% endblock %}
+
+{% block top %}
+<a href="/game" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+  <div class="overlay" id="overlay"></div>
+  <div class="custom-popup" id="customPopup">
+  <p>Voulez vous vraiment supprimer ce fichie?</p>
+  <button onclick="deleteFile()" class="yes">Oui</button>
+  <button onclick="closePopup()" class="no">Non</button>
+  </div>
+  <h2>game</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+      </tr>
+    </thead>
+  <tbody>
+      {% for game in games %}
+      <tr onclick="openPopup('{{ game.id }}');" style="cursor: pointer;">
+        <td>{{ game.name }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <br>
+<script>
+  let game;
+  function openPopup(game_id) {
+    game = game_id
+    document.getElementById('overlay').style.display = 'block';
+    document.getElementById('customPopup').style.display = 'block';
+  }
+
+  function closePopup() {
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('customPopup').style.display = 'none';
+  }
+
+  function deleteFile() {
+    window.location = '/game/remove/' + game; 
+  }
+</script>
+{% endblock %}

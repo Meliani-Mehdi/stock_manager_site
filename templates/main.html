@@ -21,19 +21,36 @@
           <li><a href="/">Logout</a></li>
         </ul>
       </div>
-        <div class="display_frame">
-          <div class="top_side">
-            {% block top %}{% endblock %}
-          </div>
-          <div class="bot_side">
-            {% block bot %}{% endblock %}
-          </div>
+      <div class="display_frame">
+        <div class="top_side">
+          {% block top %}{% endblock %}
         </div>
+        <div class="bot_side">
+          {% block bot %}{% endblock %}
+        </div>
+      </div>
     </div>
     <script>
       function goToHomePage() {
         window.location.href = '/main';
       }
+      // JavaScript to format floating-point numbers within elements with class 'dFloat'
+      document.addEventListener('DOMContentLoaded', function() {
+        // Select all elements with class 'dFloat'
+        var elements = document.querySelectorAll('.dFloat');
+
+        // Iterate over each element
+        elements.forEach(function(element) {
+          // Get the original content of the element
+          var originalContent = element.textContent;
+
+          // Parse the content to a float and format it with 2 decimal places
+          var formattedContent = parseFloat(originalContent).toFixed(2);
+
+          // Update the content of the element with the formatted value
+          element.textContent = formattedContent;
+        });
+      });
     </script>
   </body>
 </html>

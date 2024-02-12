@@ -1,0 +1,59 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<title>Voir list des games</title>
+<style>
+table {
+  border-collapse: collapse;
+  width: 40%;
+  margin: 30%;
+  margin-top: 1%;
+}
+
+th, td {
+  border: 1px solid #333344;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+tr:nth-child(even) td {
+  background-color: #3a8cff;
+}
+
+tr:nth-child(odd) td {
+  background-color: #4ba0ff;
+}
+</style>
+{% endblock %}
+
+{% block top %}
+<a href="/game" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+<h2>Game</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Nom</th>
+      <th>Unite</th>
+      <th>prix unite</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for game in games %}
+    <tr>
+      <td>{{ game.name }}</td>
+      <td>{{ game.unit }}</td>
+      <td>{{ game.price }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<br>
+{% endblock %}

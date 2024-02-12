@@ -2,7 +2,7 @@
 
 {% block head %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
-<title>Add game</title>
+<title>modifie game</title>
 {% endblock %}
 
 {% block top %}
@@ -11,19 +11,19 @@
 {% endblock %}
 
 {% block bot %}
-<form id="stockForm" action="/game/add" method="post">
+<form id="stockForm" action="/game/edit/{{ id }}" method="post">
   <br><br><br><br>
   <label class="l-lab" for="name">Nom:</label>
   <br>
-  <input type="text" class="l-inp" name="name" required>
+  <input type="text" class="l-inp" name="name" value="{{ game.name }}" required>
   <br><br>
   <label class="l-lab" for="unite">Unite:</label>
   <br>
-  <input type="number" class="l-inp" name="unite" required>
+  <input type="number" class="l-inp dFloat" name="unite" value="{{ game.unit }}" required>
   <br><br>
   <label class="l-lab" for="punit">Prix unite:</label>
   <br>
-  <input type="number" class="l-inp" name="punit" required>
+  <input type="number" class="l-inp dFloat" name="punit" value="{{ game.price }}" required>
   <br><br>
   <button type="Submit" id="submitButton" class="button-19 cen">Enregistre</button>
   <br><br><br>

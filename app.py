@@ -28,6 +28,15 @@ cursor.execute('''
 ''')
 
 cursor.execute('''
+    CREATE TABLE IF NOT EXISTS game (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        unit REAL NOT NULL,
+        unitPrice REAL NOT NULL
+    )
+''')
+
+cursor.execute('''
     CREATE TABLE IF NOT EXISTS w_time (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         worker_id INTEGER,
@@ -268,9 +277,115 @@ def index():
 def game():
     return render_template('game.html')
 
+@app.route('/game/add', methods=['POST', 'GET'])
+def add_game():
+    if request.method == 'POST':
+        conn = sqlite3.connect('form_data.db')
+        cursor = conn.cursor()
+
+        cursor.execute('INSERT INTO game(name, unit, unitPrice) VALUES(?, ?, ?)', (request.form.get('name'), request.form.get('unite'), request.form.get('punit')))
+        conn.commit()
+        conn.close()
+        return redirect('/game')
+    return render_template('g_add.html')
+
+@app.route('/game/edit')
+def edit_game():
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM game')
+    data_f = cursor.fetchall()
+    games = []
+
+    for data in data_f:
+        game = {
+            'id': data[0],
+            'name': data[1],
+            'unit': data[2],
+            'price': data[3],
+        }
+        games.append(game)
+
+    conn.close()
+    return render_template('g_edit.html', games=games)
+
+@app.route('/game/edit/<int:id>', methods=['POST', 'GET'])
+def edit_game_id(id):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    if request.method == 'POST':
+        cursor.execute('UPDATE game set name = ?, unit = ?, unitPrice = ? WHERE id = ?', (request.form.get('name'), request.form.get('unite'), request.form.get('punit'), id))
+        conn.commit()
+        conn.close()
+        return redirect('/game')
+
+    cursor.execute('SELECT * FROM game WHERE id = ?', (id, ))
+    data_f = cursor.fetchone()
+    game = {
+        'id': data_f[0],
+        'name': data_f[1],
+        'unit': data_f[2],
+        'price': data_f[3],
+    }
+
+    conn.close()
+    return render_template('g_modify.html', id=data_f[0], game=game)
+
+@app.route('/game/remove')
+def remove_game():
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM game')
+    data_f = cursor.fetchall()
+    games = []
+
+    for data in data_f:
+        game = {
+            'id': data[0],
+            'name': data[1],
+            'unit': data[2],
+            'price': data[3],
+        }
+        games.append(game)
+
+    conn.close()
+    return render_template('g_remove.html', games=games)
+
+@app.route('/game/remove/<int:id>')
+def remove_game_id(id):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    cursor.execute('DELETE FROM game WHERE id = ?', (id, ))
+    conn.commit()
+    conn.close()
+
+    return redirect('/game')
+
 @app.route('/main')
 def homepage():
     return render_template('main.html')
+
+@app.route('/game/view')
+def view_game():
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM game')
+    data_f = cursor.fetchall()
+    games = []
+
+    for data in data_f:
+        game = {
+            'id': data[0],
+            'name': data[1],
+        }
+        games.append(game)
+
+    conn.close()
+    return render_template('g_view.html', games=games)
 
     ### client ### 
 
@@ -1158,6 +1273,6 @@ def w_time_view(name, date):
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    window = webview.create_window('stock', app)
-    webview.start()
+    app.run(debug=True)
+    # window = webview.create_window('stock', app)
+    # webview.start()
