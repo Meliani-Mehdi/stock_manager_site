@@ -3,12 +3,12 @@
 {% block head %}
 <title>Voir list des games</title>
 <style>
-  table {
-    border-collapse: collapse;
-    width: 40%;
-    margin: 30%;
-    margin-top: 1%;
-  }
+table {
+  border-collapse: collapse;
+  width: 40%;
+  margin: 30%;
+  margin-top: 1%;
+}
 
   th, td {
     border: 1px solid #333344;
@@ -90,28 +90,32 @@
 {% endblock %}
 
 {% block bot %}
-  <div class="overlay" id="overlay"></div>
-  <div class="custom-popup" id="customPopup">
+<div class="overlay" id="overlay"></div>
+<div class="custom-popup" id="customPopup">
   <p>Voulez vous vraiment supprimer ce fichie?</p>
   <button onclick="deleteFile()" class="yes">Oui</button>
   <button onclick="closePopup()" class="no">Non</button>
-  </div>
-  <h2>game</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Nom</th>
-      </tr>
-    </thead>
+</div>
+<h2>game</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Nom</th>
+      <th>Unite</th>
+      <th>prix unite</th>
+    </tr>
+  </thead>
   <tbody>
-      {% for game in games %}
-      <tr onclick="openPopup('{{ game.id }}');" style="cursor: pointer;">
-        <td>{{ game.name }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <br>
+    {% for game in games %}
+    <tr onclick="openPopup('{{ game.id }}');" style="cursor: pointer;">
+      <td>{{ game.name }}</td>
+      <td class="dFloat">{{ game.unit }}</td>
+      <td class="dFloat">{{ game.price }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<br>
 <script>
   let game;
   function openPopup(game_id) {

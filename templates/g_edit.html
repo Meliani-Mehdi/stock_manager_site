@@ -3,12 +3,12 @@
 {% block head %}
 <title>Voir list des games</title>
 <style>
-  table {
-    border-collapse: collapse;
-    width: 40%;
-    margin: 30%;
-    margin-top: 1%;
-  }
+table {
+  border-collapse: collapse;
+  width: 40%;
+  margin: 30%;
+  margin-top: 1%;
+}
 
   th, td {
     border: 1px solid #333344;
@@ -36,20 +36,24 @@
 {% endblock %}
 
 {% block bot %}
-  <h2>game</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Nom</th>
-      </tr>
-    </thead>
+<h2>game</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Nom</th>
+      <th>Unite</th>
+      <th>prix unite</th>
+    </tr>
+  </thead>
   <tbody>
-      {% for game in games %}
-      <tr onclick="window.location='/game/edit/{{ game.id }}';" style="cursor: pointer;">
-        <td>{{ game.name }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <br>
+    {% for game in games %}
+    <tr onclick="window.location='/game/edit/{{ game.id }}';" style="cursor: pointer;">
+      <td>{{ game.name }}</td>
+      <td class="dFloat">{{ game.unit }}</td>
+      <td class="dFloat">{{ game.price }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<br>
 {% endblock %}

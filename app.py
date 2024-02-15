@@ -20,6 +20,27 @@ cursor.execute('''
 ''')
 
 cursor.execute('''
+    CREATE TABLE IF NOT EXISTS client (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        p_date TEXT NOT NULL,
+        first_name TEXT NOT NULL,
+        last_name TEXT NOT NULL
+    )
+''')
+
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS client_games (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        client_id INTEGER NOT NULL,
+        game_name TEXT NOT NULL,
+        number INTEGER NOT NULL,
+        unit REAL NOT NULL,
+        unit_price REAL NOT NULL,
+        FOREIGN KEY (client_id) REFERENCES client(id)
+    )
+''')
+
+cursor.execute('''
     CREATE TABLE IF NOT EXISTS worker (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         first_name TEXT NOT NULL,
@@ -381,6 +402,8 @@ def view_game():
         game = {
             'id': data[0],
             'name': data[1],
+            'unit': data[2],
+            'price': data[3],
         }
         games.append(game)
 

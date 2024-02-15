@@ -49,8 +49,8 @@ tr:nth-child(odd) td {
     {% for game in games %}
     <tr>
       <td>{{ game.name }}</td>
-      <td>{{ game.unit }}</td>
-      <td>{{ game.price }}</td>
+      <td class="dFloat">{{ game.unit }}</td>
+      <td class="dFloat">{{ game.price }}</td>
     </tr>
     {% endfor %}
   </tbody>
