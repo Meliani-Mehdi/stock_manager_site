@@ -459,7 +459,22 @@ def add_client():
         conn.close()
         return redirect('/client')
 
-    return render_template('c_add.html')
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, name FROM game')
+
+    datas = cursor.fetchall()
+    games = []
+
+    for data in datas:
+        game={
+            'id': data[0],
+            'game': data[1]
+        }
+        games.append(game)
+
+
+    return render_template('c_add.html', games=games)
 
 @app.route('/client/remove', methods=['POST', 'GET'])
 def remove_client():
