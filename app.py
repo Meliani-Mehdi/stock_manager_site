@@ -427,34 +427,25 @@ def add_client():
         conn = sqlite3.connect('form_data.db')
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT INTO stock_data (p_date, first_name, last_name, payment)
-            VALUES (?, ?, ?, 0)
+            INSERT INTO client (p_date, first_name, last_name)
+            VALUES (?, ?, ?)
         ''', (current_date, first_name, last_name))
         conn.commit()
 
-        stock_data_id = cursor.lastrowid
+        client_id = cursor.lastrowid
 
-        duplicate_games = request.form.getlist('gameName[]')
-        duplicate_numbers = request.form.getlist('number[]')
-        duplicate_units = request.form.getlist('unit[]')   
-        duplicate_unit_prices = request.form.getlist('unitPrice[]')  
+        games = request.form.getlist('gameName[]')
+        numbers = request.form.getlist('number[]')
+        units = request.form.getlist('unit[]')   
+        unit_prices = request.form.getlist('unitPrice[]')  
 
-        for i in range(len(duplicate_games)):  
+        for i in range(len(games)):  
             cursor.execute('''
-                INSERT INTO stk_game (g_name, stock_id, number, unit, unit_price)
+                INSERT INTO client_games (client_id, game_name, number, unit, unit_price)
                 VALUES (?, ?, ?, ?, ?)
-            ''', (duplicate_games[i], stock_data_id, duplicate_numbers[i], duplicate_units[i], duplicate_unit_prices[i]))
+            ''',
+            (client_id, games[i], numbers[i], units[i], unit_prices[i]))
             conn.commit()
-
-            updated_game = duplicate_games[i].replace(' ', '_') + '_so'
-            cursor.execute(f"SELECT {updated_game} FROM stv WHERE date = ?", (current_date,))
-            old_v = cursor.fetchone()
-
-            if old_v:
-                new_v = old_v[0] + int(duplicate_numbers[i])
-                cursor.execute(f"UPDATE stv SET {updated_game} = ? WHERE date = ?", (new_v, current_date))
-                conn.commit()
-
 
         conn.close()
         return redirect('/client')

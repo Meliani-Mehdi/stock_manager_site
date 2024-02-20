@@ -68,31 +68,31 @@ tr td:last-child {
   <input id="fn" type="text" class="l-inp" name="firstName" required>
   <input id="ln" type="text" class="l-inp" name="lastName" required>
   <br><br>
-  <table id="gameTable">
-    <thead>
-      <tr>
-        <th>Game Name</th>
-        <th>Number</th>
-        <th>Unit</th>
-        <th>Unit Price</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>
-          <select name="gameName[]">
-            {% for game in games %}
-            <option value="{{game.id}}">{{game.game}}</option>
-            {% endfor %}
-          </select>
-        </td>
-        <td><input type="number" name="number[]" /></td>
-        <td><input type="text" name="unit[]" /></td>
-        <td><input type="number" name="unitPrice[]" /></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
+<table id="gameTable">
+  <thead>
+    <tr>
+      <th>Game Name</th>
+      <th>Number</th>
+      <th>Unit</th>
+      <th>Unit Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <select name="gameName[]" required>
+          {% for game in games %}
+          <option value="{{game.id}}">{{game.game}}</option>
+          {% endfor %}
+        </select>
+      </td>
+      <td><input type="number" name="number[]" required /></td>
+      <td><input type="text" pattern="[0-9]+(\.[0-9]+)?" name="unit[]" required /></td>
+      <td><input type="text" pattern="[0-9]+(\.[0-9]+)?" name="unitPrice[]" required /></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
   <button type="button" class="btn" onclick="addRow()">+</button>
 
   <button type="Submit" id="submitButton" class="button-19 cen">Enregistre</button>
@@ -102,19 +102,21 @@ tr td:last-child {
   function addRow() {
     var table = document.getElementById("gameTable").getElementsByTagName('tbody')[0];
     var newRow = table.insertRow();
-    var cells = ["gameName", "number", "unit", "unitPrice", ""];
+    var cells = ["gameName[]", "number[]", "unit[]", "unitPrice[]", ""];
+    var existingRow = table.rows[0];
     for (var i = 0; i < cells.length; i++) {
       var cell = newRow.insertCell();
       if (cells[i] === "") {
         cell.innerHTML = '<button class="btn" onclick="removeRow(this)">-</button>';
-      } else if (cells[i] === "gameName") {
-        cell.innerHTML = '<select name="gameName[]">'+
+      } else if (cells[i] === "gameName[]") {
+        cell.innerHTML = '<select name="gameName[]" required>'+
             {% for game in games %}
             '<option value="{{game.id}}">{{game.game}}</option>'+
             {% endfor %}
             '</select>';
       } else {
-        cell.innerHTML = '<input type="' + (cells[i].includes("Price") ? "number" : "text") + '" name="' + cells[i] + '" />';
+        var inputType = existingRow.cells[i].querySelector("input").type;
+        cell.innerHTML = '<input type="' + inputType + '" name="' + cells[i] + '" required />';
       }
     }
   }
