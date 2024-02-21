@@ -86,10 +86,10 @@ cursor.execute('''
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS payment (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        c_id INTEGER,
+        client_id INTEGER,
         date TEXT NOT NULL,
         pay REAL NOT NULL,
-        FOREIGN KEY (c_id) REFERENCES stock_data(id)
+        FOREIGN KEY (client_id) REFERENCES client(id)
     )
 ''')
 
@@ -556,45 +556,47 @@ def view_client():
         search_name = request.form.get('search_name', None)
 
         if search_date and search_name:
-            cursor.execute('SELECT * FROM stock_data WHERE p_date = ? AND (first_name LIKE ? OR last_name LIKE ?) ORDER BY p_date DESC',(search_date, f'%{search_name}%', f'%{search_name}%'))
+            cursor.execute('SELECT * FROM client WHERE p_date = ? AND (first_name LIKE ? OR last_name LIKE ?) ORDER BY p_date DESC',(search_date, f'%{search_name}%', f'%{search_name}%'))
         elif search_date:
-            cursor.execute('SELECT * FROM stock_data WHERE p_date = ? ORDER BY p_date DESC', (search_date,))
+            cursor.execute('SELECT * FROM client WHERE p_date = ? ORDER BY p_date DESC', (search_date,))
         elif search_name:
-            cursor.execute('SELECT * FROM stock_data WHERE first_name LIKE ? OR last_name LIKE ? ORDER BY p_date DESC',
+            cursor.execute('SELECT * FROM client WHERE first_name LIKE ? OR last_name LIKE ? ORDER BY p_date DESC',
                            (f'%{search_name}%', f'%{search_name}%'))
         else:
-            cursor.execute('SELECT * FROM stock_data ORDER BY p_date DESC')
+            cursor.execute('SELECT * FROM client ORDER BY p_date DESC')
     else:
-        cursor.execute('SELECT * FROM stock_data ORDER BY p_date DESC')
+        cursor.execute('SELECT * FROM client ORDER BY p_date DESC')
 
-    users = cursor.fetchall()
+    datas = cursor.fetchall()
 
-    users_with_games = []
-    for user in users:
-        cursor.execute('SELECT * FROM stk_game WHERE stock_id = ?', (user[0],))
+    users = []
+    for data in datas:
+        cursor.execute('SELECT * FROM client_games WHERE client_id = ?', (data[0],))
         games = cursor.fetchall()
+        cursor.execute('SELECT SUM(pay) FROM payment WHERE client_id = ?', (data[0],))
+        payment = cursor.fetchone()[0] if cursor.fetchone()[0] is not None else 0
         sold = 0
         total = 0
         for game in games:
             total = total + (game[3]*game[4]*game[5])
 
-        sold = total - user[4]
+        sold = total - payment
 
-        user_with_games = {
-            'id': user[0],
-            'p_date': user[1],
-            'first_name': user[2],
-            'last_name': user[3],
-            'pay': user[4],
+        user = {
+            'id': data[0],
+            'p_date': data[1],
+            'first_name': data[2],
+            'last_name': data[3],
+            'pay': payment,
             'sold': sold,
             'total': total
         }
 
-        users_with_games.append(user_with_games)
+        users.append(user)
 
     conn.close()
 
-    return render_template('c_view.html', users=users_with_games)
+    return render_template('c_view.html', users=users)
 
 @app.route('/client/view/<int:id>', methods=['POST', 'GET'])
 def view_c_game(id):
