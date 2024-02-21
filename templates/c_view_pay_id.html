@@ -45,7 +45,7 @@
 
 {% block bot %}
 <h1>{{ user_data[2] }}</h1>
-<h2>The Payment of: {{ user_data[0] }} {{ user_data[1] }}</h2>
+<h2>le paiement de: {{ user_data[0] }} {{ user_data[1] }}</h2>
 <table>
   <tr>
     <th>Date</th>
@@ -53,13 +53,13 @@
   </tr>
   {% for pay in pays %}
     <tr>
-      <td>{{ pay[2] }}</td>
-      <td>{{ pay[3] }}</td>
+      <td>{{ pay[0] }}</td>
+      <td class="dFloat">{{ pay[1] }}</td>
     </tr>
   {% endfor %}
   <tr>
     <td style="background-color: #f2f2f2;">Total:</td>
-    <td style="background-color: #f2f2f2;">{{ t }}</td>
+    <td class="dFloat" style="background-color: #f2f2f2;">{{ t }}</td>
   </tr>
 </table>
 {% endblock %}

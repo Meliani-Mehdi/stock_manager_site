@@ -575,8 +575,11 @@ def view_client():
     for data in datas:
         cursor.execute('SELECT * FROM client_games WHERE client_id = ?', (data[0],))
         games = cursor.fetchall()
-        cursor.execute('SELECT SUM(pay) FROM payment WHERE client_id = ?', (data[0],))
-        payment = cursor.fetchone()[0] if cursor.fetchone()[0] is not None else 0
+        cursor.execute('SELECT pay FROM payment WHERE client_id = ?', (data[0],))
+        payment=0
+        pays=cursor.fetchall()
+        for pay in pays:
+            payment += pay[0]
         sold = 0
         total = 0
         for game in games:
@@ -606,12 +609,9 @@ def view_c_game(id):
         date = datetime.now().strftime("%Y-%m-%d")
         conn = sqlite3.connect('form_data.db')
         cursor = conn.cursor()
-        cursor.execute('SELECT payment FROM stock_ata WHERE id = ?', (id,))
         pay = request.form.get('pay')
-        new_val = int(pay) + cursor.fetchone()[0]
-        cursor.execute('UPDATE stock_data SET payment = ? WHERE id = ?', (new_val,id))
         cursor.execute('''
-            INSERT INTO payment (c_id, date, pay)
+            INSERT INTO payment (client_id, date, pay)
             VALUES (?, ?, ?)
         ''', (id, date, pay))
         conn.commit()
@@ -628,8 +628,11 @@ def view_c_game(id):
     cursor.execute('SELECT game_name, number, unit, unit_price FROM client_games WHERE client_id = ?', (id,))
     client_games = cursor.fetchall()
 
-    cursor.execute('SELECT SUM(pay) FROM payment WHERE client_id = ?', (id,))
-    payment = cursor.fetchone()[0] if cursor.fetchone()[0] is not None else 0
+    cursor.execute('SELECT pay FROM payment WHERE client_id = ?', (id,))
+    payment=0
+    pays=cursor.fetchall()
+    for pay in pays:
+        payment += pay[0]
 
     conn.close()
     total = 0
@@ -662,20 +665,33 @@ def generate_pdf(id):
         conn = sqlite3.connect('form_data.db')
         cursor = conn.cursor()
 
-        cursor.execute('SELECT first_name, last_name, p_date, payment FROM stock_data WHERE id = ?', (id,))
-        user_data = cursor.fetchone()
+        cursor.execute('SELECT first_name, last_name, p_date FROM client WHERE id = ?', (id,))
+        data = cursor.fetchone()
+        user_data = {
+            'first': data[0],
+            'last': data[1],
+            'date': data[2],
+        }
 
-        cursor.execute('SELECT * FROM stk_game WHERE stock_id = ?', (id,))
+        cursor.execute('SELECT game_name, number, unit, unit_price FROM client_games WHERE client_id = ?', (id,))
         games = cursor.fetchall()
 
         conn.close()
-
+        gamesD = []
         total = 0
         for game in games:
-            total = total + (game[3] * game[4] * game[5])
+            t = game[1]*game[2]*game[3]
+            gameD = {
+                'name': game[0],
+                'number': game[1],
+                'unit': game[2],
+                'unitp': game[3],
+                'total': t,
+            }
+            gamesD.append(gameD)
+            total = total + (game[1] * game[2] * game[3])
 
-        # Generate PDF content using fpdf
-        pdf_content = generate_pdf_content(user_data, games, total, request.form.get('rcNumber'), request.form.get('nif'), request.form.get('nPlusArt'), request.form.get('adresse'))
+        pdf_content = generate_pdf_content(user_data, gamesD, total, request.form.get('rcNumber'), request.form.get('nif'), request.form.get('nPlusArt'), request.form.get('adresse'))
 
         response = Response(pdf_content, content_type='application/pdf')
         response.headers['Content-Disposition'] = f'inline; filename=client_info_{id}.pdf'
@@ -705,11 +721,11 @@ def generate_pdf_content(user_data, games, total, t1, t2, t3, t4):
 
     pdf.set_font("Arial", 'B', size=9)
 
-    pdf.cell(0, 10, f"Date: {user_data[2]}", ln=True, align='C')
+    pdf.cell(0, 10, f"Date: {user_data['date']}", ln=True, align='C')
 
     pdf.set_font("Arial", 'B', size=14)
 
-    pdf.cell(0, 10, f"Client: {user_data[0]} {user_data[1]}", ln=True, align='C')
+    pdf.cell(0, 10, f"Client: {user_data['first']} {user_data['last']}", ln=True, align='C')
 
     pdf.set_font("Arial", 'B', size=12)
 
@@ -744,11 +760,11 @@ def generate_pdf_content(user_data, games, total, t1, t2, t3, t4):
     for game in games:
         i += 1
         pdf.cell(20, 8, str(i), border=1, align='C')
-        pdf.cell(20, 8, str(game[3]), border=1)
-        pdf.cell(50, 8, str(game[1]), border=1)
-        pdf.cell(20, 8, f"{game[4]}", border=1)
-        pdf.cell(20, 8, f"{game[5]}.00", border=1)
-        pdf.cell(40, 8, f"{game[3] * game[4] * game[5]}.00", border=1)
+        pdf.cell(20, 8, str(game['number']), border=1)
+        pdf.cell(50, 8, str(game['name']), border=1)
+        pdf.cell(20, 8, f"{float(game['unit']):.2f}", border=1)
+        pdf.cell(20, 8, f"{float(game['unitp']):.2f}", border=1)
+        pdf.cell(40, 8, f"{float(game['total']):.2f}", border=1)
         pdf.ln(8)
 
     pdf.cell(110, 8, "")
@@ -781,16 +797,16 @@ def view_c_pay(id):
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
-    cursor.execute('SELECT first_name, last_name, p_date, payment FROM stock_data WHERE id = ?', (id,))
+    cursor.execute('SELECT first_name, last_name, p_date FROM client WHERE id = ?', (id,))
     user_data = cursor.fetchone()
 
-    cursor.execute('SELECT * FROM payment WHERE c_id = ?', (id,))
+    cursor.execute('SELECT date, pay FROM payment WHERE client_id = ?', (id,))
     pay_s = cursor.fetchall()
 
     conn.close()
     total = 0
     for pay in pay_s:
-        total += pay[3]
+        total += pay[1]
 
     return render_template('c_view_pay_id.html', user_data=user_data, pays=pay_s, t=total, id=id)
 
