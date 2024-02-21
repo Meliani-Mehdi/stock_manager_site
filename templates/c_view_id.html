@@ -56,11 +56,11 @@
   </tr>
   {% for game in games %}
     <tr>
-      <td>{{ game[1] }}</td>
-      <td>{{ game[3] }}</td>
-      <td>{{ game[4] }}</td>
-      <td>{{ game[5] }}</td>
-      <td>{{ game[3] * game[4] * game[5] }}</td>
+      <td>{{ game.name }}</td>
+      <td>{{ game.number }}</td>
+      <td class="dFloat">{{ game.unit }}</td>
+      <td class="dFloat">{{ game.unitp }}</td>
+      <td class="dFloat">{{ game.total }}</td>
     </tr>
   {% endfor %}
 </table>
@@ -71,9 +71,9 @@
     <th>Sold</th>
   </tr>
   <tr>
-    <td>{{ t }}</td>
-    <td>{{ user_data[3] }}</td>
-    <td>{{ sold }}</td>
+    <td class="dFloat">{{ total }}</td>
+    <td class="dFloat">{{ payment }}</td>
+    <td class="dFloat">{{ sold }}</td>
   </tr>
 </table>
 <br>

@@ -440,11 +440,13 @@ def add_client():
         unit_prices = request.form.getlist('unitPrice[]')  
 
         for i in range(len(games)):  
+            cursor.execute('SELECT name FROM game WHERE id = ?', (games[i], ))
+            game=cursor.fetchone()[0]
             cursor.execute('''
                 INSERT INTO client_games (client_id, game_name, number, unit, unit_price)
                 VALUES (?, ?, ?, ?, ?)
             ''',
-            (client_id, games[i], numbers[i], units[i], unit_prices[i]))
+            (client_id, game, numbers[i], units[i], unit_prices[i]))
             conn.commit()
 
         conn.close()
@@ -604,7 +606,7 @@ def view_c_game(id):
         date = datetime.now().strftime("%Y-%m-%d")
         conn = sqlite3.connect('form_data.db')
         cursor = conn.cursor()
-        cursor.execute('SELECT payment FROM stock_data WHERE id = ?', (id,))
+        cursor.execute('SELECT payment FROM stock_ata WHERE id = ?', (id,))
         pay = request.form.get('pay')
         new_val = int(pay) + cursor.fetchone()[0]
         cursor.execute('UPDATE stock_data SET payment = ? WHERE id = ?', (new_val,id))
@@ -620,20 +622,33 @@ def view_c_game(id):
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
-    cursor.execute('SELECT first_name, last_name, p_date, payment FROM stock_data WHERE id = ?', (id,))
+    cursor.execute('SELECT first_name, last_name, p_date FROM client WHERE id = ?', (id,))
     user_data = cursor.fetchone()
 
-    cursor.execute('SELECT * FROM stk_game WHERE stock_id = ?', (id,))
-    games = cursor.fetchall()
+    cursor.execute('SELECT game_name, number, unit, unit_price FROM client_games WHERE client_id = ?', (id,))
+    client_games = cursor.fetchall()
+
+    cursor.execute('SELECT SUM(pay) FROM payment WHERE client_id = ?', (id,))
+    payment = cursor.fetchone()[0] if cursor.fetchone()[0] is not None else 0
 
     conn.close()
     total = 0
-    for game in games:
-        total = total + (game[3]*game[4]*game[5])
+    games=[]
+    for game in client_games:
+        t=game[1]*game[2]*game[3]
+        g={
+            'name': game[0],
+            'number': game[1],
+            'unit': game[2],
+            'unitp': game[3],
+            'total': t,
+        }
+        games.append(g)
+        total = total + t
 
-    sold = total - user_data[3]
+    sold = total - payment
 
-    return render_template('c_view_id.html', user_data=user_data, games=games , sold=sold, t=total, id=id)
+    return render_template('c_view_id.html', user_data=user_data, games=games , sold=sold, payment=payment, total=total, id=id)
 
 
 @app.route('/client/view/<int:id>/makePDF')
