@@ -1,0 +1,129 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+<title>Edit Client</title>
+<style>
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0;
+  margin-top: 1%;
+}
+
+th, td {
+  border: 1px solid #333344;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+tr {
+  height: 20px;
+}
+
+tr:nth-child(even) td {
+  background-color: #3a8cff;
+}
+
+tr:nth-child(odd) td {
+  background-color: #4ba0ff;
+}
+
+td:last-child {
+  border: none; 
+}
+
+tr td:last-child {
+  background-color: transparent;
+}
+
+.btn {
+    display: inline-block;
+    width: 46px;
+    height: 46px;
+    line-height: 20px; 
+    text-align: center;
+    background-color: #346a99;
+    color: white;
+    border-radius: 10%; 
+    text-decoration: none;
+}
+</style>
+{% endblock %}
+
+{% block top %}
+<a href="/client" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+<form id="stockForm" action="/client/add" method="post">
+  <label class="l-lab" for="firstName">Nom:</label>
+  <label class="l-lab" for="lastName">Prenom:</label>
+  <br>
+  <input id="fn" type="text" class="l-inp" name="firstName" required>
+  <input id="ln" type="text" class="l-inp" name="lastName" required>
+  <br><br>
+<table id="gameTable">
+  <thead>
+    <tr>
+      <th>Game Name</th>
+      <th>Number</th>
+      <th>Unit</th>
+      <th>Unit Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <select name="gameName[]" required>
+          {% for game in games %}
+          <option value="{{game.id}}">{{game.game}}</option>
+          {% endfor %}
+        </select>
+      </td>
+      <td><input type="number" name="number[]" required /></td>
+      <td><input type="text" pattern="[0-9]+(\.[0-9]+)?" name="unit[]" required /></td>
+      <td><input type="text" pattern="[0-9]+(\.[0-9]+)?" name="unitPrice[]" required /></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+  <button type="button" class="btn" onclick="addRow()">+</button>
+
+  <button type="Submit" id="submitButton" class="button-19 cen">Enregistre</button>
+  <br><br><br>
+</form>
+<script>
+  function addRow() {
+    var table = document.getElementById("gameTable").getElementsByTagName('tbody')[0];
+    var newRow = table.insertRow();
+    var cells = ["gameName[]", "number[]", "unit[]", "unitPrice[]", ""];
+    var existingRow = table.rows[0];
+    for (var i = 0; i < cells.length; i++) {
+      var cell = newRow.insertCell();
+      if (cells[i] === "") {
+        cell.innerHTML = '<button class="btn" onclick="removeRow(this)">-</button>';
+      } else if (cells[i] === "gameName[]") {
+        cell.innerHTML = '<select name="gameName[]" required>'+
+            {% for game in games %}
+            '<option value="{{game.id}}">{{game.game}}</option>'+
+            {% endfor %}
+            '</select>';
+      } else {
+        var inputType = existingRow.cells[i].querySelector("input").type;
+        cell.innerHTML = '<input type="' + inputType + '" name="' + cells[i] + '" required />';
+      }
+    }
+  }
+
+  function removeRow(button) {
+    var row = button.parentNode.parentNode;
+    row.parentNode.removeChild(row);
+  }
+</script>
+{% endblock %}

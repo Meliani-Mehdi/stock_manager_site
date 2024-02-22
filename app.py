@@ -454,7 +454,7 @@ def add_client():
 
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT id, name FROM game')
+    cursor.execute('SELECT * FROM game')
 
     datas = cursor.fetchall()
     games = []
@@ -462,12 +462,128 @@ def add_client():
     for data in datas:
         game={
             'id': data[0],
-            'game': data[1]
+            'game': data[1],
+            'unit':data[2],
+            'unitp':data[3],
         }
         games.append(game)
 
 
     return render_template('c_add.html', games=games)
+
+@app.route('/client/edit', methods=['POST', 'GET'])
+def edit_client():
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        search_date = request.form.get('search_date', None)
+        search_name = request.form.get('search_name', None)
+
+        if search_date and search_name:
+            cursor.execute('SELECT * FROM client WHERE p_date = ? AND (first_name LIKE ? OR last_name LIKE ?) ORDER BY p_date DESC',(search_date, f'%{search_name}%', f'%{search_name}%'))
+        elif search_date:
+            cursor.execute('SELECT * FROM client WHERE p_date = ? ORDER BY p_date DESC', (search_date,))
+        elif search_name:
+            cursor.execute('SELECT * FROM client WHERE first_name LIKE ? OR last_name LIKE ? ORDER BY p_date DESC',
+                           (f'%{search_name}%', f'%{search_name}%'))
+        else:
+            cursor.execute('SELECT * FROM client ORDER BY p_date DESC')
+    else:
+        cursor.execute('SELECT * FROM client ORDER BY p_date DESC')
+
+    datas = cursor.fetchall()
+
+    users = []
+    for data in datas:
+        cursor.execute('SELECT * FROM client_games WHERE client_id = ?', (data[0],))
+        games = cursor.fetchall()
+        cursor.execute('SELECT pay FROM payment WHERE client_id = ?', (data[0],))
+        payment=0
+        pays=cursor.fetchall()
+        for pay in pays:
+            payment += pay[0]
+        sold = 0
+        total = 0
+        for game in games:
+            total = total + (game[3]*game[4]*game[5])
+
+        sold = total - payment
+
+        user = {
+            'id': data[0],
+            'p_date': data[1],
+            'first_name': data[2],
+            'last_name': data[3],
+            'pay': payment,
+            'sold': sold,
+            'total': total
+        }
+
+        users.append(user)
+
+    conn.close()
+
+
+    return render_template('c_edit.html', users=users)
+
+@app.route('/client/edit/<int:id>', methods=['POST', 'GET'])
+def modify_client():
+    if request.method == 'POST':
+        first_name = request.form.get('firstName')
+        last_name = request.form.get('lastName')
+
+        current_date = datetime.now().strftime("%Y-%m-%d")
+
+        conn = sqlite3.connect('form_data.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO client (p_date, first_name, last_name)
+            VALUES (?, ?, ?)
+        ''', (current_date, first_name, last_name))
+        conn.commit()
+
+        client_id = cursor.lastrowid
+
+        games = request.form.getlist('gameName[]')
+        numbers = request.form.getlist('number[]')
+        units = request.form.getlist('unit[]')   
+        unit_prices = request.form.getlist('unitPrice[]')  
+
+        for i in range(len(games)):  
+            cursor.execute('SELECT name FROM game WHERE id = ?', (games[i], ))
+            game=cursor.fetchone()[0]
+            cursor.execute('''
+                INSERT INTO client_games (client_id, game_name, number, unit, unit_price)
+                VALUES (?, ?, ?, ?, ?)
+            ''',
+            (client_id, game, numbers[i], units[i], unit_prices[i]))
+            conn.commit()
+
+        conn.close()
+        return redirect('/client')
+
+    ##last was here
+
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM game')
+
+    datas = cursor.fetchall()
+    games = []
+
+    for data in datas:
+        game={
+            'id': data[0],
+            'game': data[1],
+            'unit':data[2],
+            'unitp':data[3],
+        }
+        games.append(game)
+
+
+    return render_template('c_add.html', games=games)
+
 
 @app.route('/client/remove', methods=['POST', 'GET'])
 def remove_client():
@@ -479,69 +595,59 @@ def remove_client():
         search_name = request.form.get('search_name', None)
 
         if search_date and search_name:
-            cursor.execute('SELECT * FROM stock_data WHERE p_date = ? AND (first_name LIKE ? OR last_name LIKE ?) ORDER BY p_date DESC',(search_date, f'%{search_name}%', f'%{search_name}%'))
+            cursor.execute('SELECT * FROM client WHERE p_date = ? AND (first_name LIKE ? OR last_name LIKE ?) ORDER BY p_date DESC',(search_date, f'%{search_name}%', f'%{search_name}%'))
         elif search_date:
-            cursor.execute('SELECT * FROM stock_data WHERE p_date = ? ORDER BY p_date DESC', (search_date,))
+            cursor.execute('SELECT * FROM client WHERE p_date = ? ORDER BY p_date DESC', (search_date,))
         elif search_name:
-            cursor.execute('SELECT * FROM stock_data WHERE first_name LIKE ? OR last_name LIKE ? ORDER BY p_date DESC',
+            cursor.execute('SELECT * FROM client WHERE first_name LIKE ? OR last_name LIKE ? ORDER BY p_date DESC',
                            (f'%{search_name}%', f'%{search_name}%'))
         else:
-            cursor.execute('SELECT * FROM stock_data ORDER BY p_date DESC')
+            cursor.execute('SELECT * FROM client ORDER BY p_date DESC')
     else:
-        cursor.execute('SELECT * FROM stock_data ORDER BY p_date DESC')
+        cursor.execute('SELECT * FROM client ORDER BY p_date DESC')
 
-    users = cursor.fetchall()
+    datas = cursor.fetchall()
 
-    users_with_games = []
-    for user in users:
-        cursor.execute('SELECT * FROM stk_game WHERE stock_id = ?', (user[0],))
+    users = []
+    for data in datas:
+        cursor.execute('SELECT * FROM client_games WHERE client_id = ?', (data[0],))
         games = cursor.fetchall()
+        cursor.execute('SELECT pay FROM payment WHERE client_id = ?', (data[0],))
+        payment=0
+        pays=cursor.fetchall()
+        for pay in pays:
+            payment += pay[0]
         sold = 0
         total = 0
         for game in games:
             total = total + (game[3]*game[4]*game[5])
 
-        sold = total - user[4]
+        sold = total - payment
 
-        user_with_games = {
-            'id': user[0],
-            'p_date': user[1],
-            'first_name': user[2],
-            'last_name': user[3],
-            'pay': user[4],
+        user = {
+            'id': data[0],
+            'p_date': data[1],
+            'first_name': data[2],
+            'last_name': data[3],
+            'pay': payment,
             'sold': sold,
             'total': total
         }
 
-        users_with_games.append(user_with_games)
+        users.append(user)
 
     conn.close()
 
-    return render_template('c_remove.html', users=users_with_games)
+
+    return render_template('c_remove.html', users=users)
 
 @app.route('/client/remove/<int:id>')
 def del_client(id):
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
-    current_date = datetime.now().strftime("%Y-%m-%d")
 
-    cursor.execute("""SELECT g_name, number
-                    FROM stk_game 
-                    WHERE stock_id = ?
-                    """
-                   ,(id,))
-    dups = cursor.fetchall()
-    for d in dups:
-        updated_game = d[0].replace(' ', '_') + '_so'
-        cursor.execute(f"SELECT {updated_game} FROM stv WHERE date = ?", (current_date,))
-        old_v = cursor.fetchone()
-
-        if old_v:
-            new_v = old_v[0] - int(d[1])
-            cursor.execute(f"UPDATE stv SET {updated_game} = ? WHERE date = ?", (new_v, current_date))
-
-    cursor.execute('DELETE FROM stk_game WHERE stock_id = ?',(id,))
-    cursor.execute('DELETE FROM stock_data WHERE id = ?',(id,))
+    cursor.execute('DELETE FROM client_games WHERE client_id = ?',(id,))
+    cursor.execute('DELETE FROM client WHERE id = ?',(id,))
 
     conn.commit()
     conn.close()

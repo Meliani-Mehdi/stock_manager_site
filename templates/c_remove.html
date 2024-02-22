@@ -90,19 +90,19 @@
 {% endblock %}
 
 {% block bot %}
-  <form method="POST" action="/client/remove">
-    <b><label for="search_date">Recherche par date:</label></b>
-    <input type="date" id="search_date" name="search_date">
-    <b><label for="search_date">Recherche par nom:</label></b>
-    <input type="text" id="search_name" name="search_name">
-    <button type="submit">Recherche</button>
-  </form>
   <div class="overlay" id="overlay"></div>
   <div class="custom-popup" id="customPopup">
   <p>Voulez vous vraiment supprimer ce fichie?</p>
   <button onclick="deleteFile()" class="yes">Oui</button>
   <button onclick="closePopup()" class="no">Non</button>
   </div>
+  <form method="POST" action="/client/view">
+    <b><label for="search_date">Recherche par date:</label></b>
+    <input type="date" id="search_date" name="search_date">
+    <b><label for="search_date">Recherche par nom:</label></b>
+    <input type="text" id="search_name" name="search_name">
+    <button type="submit">Recherche</button>
+  </form>
   <h2>Information des clients</h2>
   <table>
     <thead>
@@ -123,18 +123,18 @@
         <td>{{ user.p_date }}</td>
         <td>{{ user.first_name }}</td>
         <td>{{ user.last_name }}</td>
-        <td>{{ user.total }}</td>
-        <td>{{ user.pay }}</td>
-        <td>{{ user.sold }}</td>
+        <td class="dFloat">{{ user.total }}</td>
+        <td class="dFloat">{{ user.pay }}</td>
+        <td class="dFloat">{{ user.sold }}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
   <br>
 <script>
-  let user;
-  function openPopup(user_id) {
-    user = user_id
+  let client;
+  function openPopup(client_id) {
+    client = client_id
     document.getElementById('overlay').style.display = 'block';
     document.getElementById('customPopup').style.display = 'block';
   }
@@ -145,7 +145,7 @@
   }
 
   function deleteFile() {
-    window.location = '/client/remove/' + user; 
+    window.location = '/client/remove/' + client; 
   }
 </script>
 {% endblock %}
