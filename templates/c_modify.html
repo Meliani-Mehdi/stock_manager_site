@@ -26,11 +26,11 @@ tr {
 }
 
 tr:nth-child(even) td {
-  background-color: #3a8cff;
+  background-color: #808080;
 }
 
 tr:nth-child(odd) td {
-  background-color: #4ba0ff;
+  background-color: #9c9c9c;
 }
 
 td:last-child {
@@ -42,15 +42,15 @@ tr td:last-child {
 }
 
 .btn {
-    display: inline-block;
-    width: 46px;
-    height: 46px;
-    line-height: 20px; 
-    text-align: center;
-    background-color: #346a99;
-    color: white;
-    border-radius: 10%; 
-    text-decoration: none;
+  display: inline-block;
+  width: 46px;
+  height: 46px;
+  line-height: 20px; 
+  text-align: center;
+  background-color: #346a99;
+  color: white;
+  border-radius: 10%; 
+  text-decoration: none;
 }
 </style>
 {% endblock %}
@@ -61,38 +61,44 @@ tr td:last-child {
 {% endblock %}
 
 {% block bot %}
-<form id="stockForm" action="/client/add" method="post">
+<form id="stockForm" action="/client/edit/{{ id }}" method="post">
   <label class="l-lab" for="firstName">Nom:</label>
   <label class="l-lab" for="lastName">Prenom:</label>
   <br>
-  <input id="fn" type="text" class="l-inp" name="firstName" required>
-  <input id="ln" type="text" class="l-inp" name="lastName" required>
+  <input id="fn" type="text" class="l-inp" name="firstName" value="{{ name[0] }}" required>
+  <input id="ln" type="text" class="l-inp" name="lastName" value="{{ name[1] }}" required>
   <br><br>
-<table id="gameTable">
-  <thead>
-    <tr>
-      <th>Game Name</th>
-      <th>Number</th>
-      <th>Unit</th>
-      <th>Unit Price</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        <select name="gameName[]" required>
-          {% for game in games %}
-          <option value="{{game.id}}">{{game.game}}</option>
-          {% endfor %}
-        </select>
-      </td>
-      <td><input type="number" name="number[]" required /></td>
-      <td><input type="text" pattern="[0-9]+(\.[0-9]+)?" name="unit[]" required /></td>
-      <td><input type="text" pattern="[0-9]+(\.[0-9]+)?" name="unitPrice[]" required /></td>
-      <td></td>
-    </tr>
-  </tbody>
-</table>
+  <table id="gameTable">
+    <thead>
+      <tr>
+        <th>Game Name</th>
+        <th>Number</th>
+        <th>Unit</th>
+        <th>Unit Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for index, lastG in lastgames %}
+        <tr>
+          <td>
+            <select name="gameName[]" required>
+              {% for game in games %}
+              <option value="{{game.id}}" {% if lastG.name == game.game %}selected{% endif %}>{{game.game}}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td><input type="number" name="number[]" value="{{ lastG.number }}" required /></td>
+          <td><input type="text" pattern="[0-9]+(\.[0-9]+)?" name="unit[]" value="{{ lastG.unit }}" required /></td>
+          <td><input type="text" pattern="[0-9]+(\.[0-9]+)?" name="unitPrice[]" value="{{ lastG.unitp }}" required /></td>
+          <td>
+            {% if index > 0 %}
+              <button class="btn" onclick="removeRow(this)">-</button>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
   <button type="button" class="btn" onclick="addRow()">+</button>
 
   <button type="Submit" id="submitButton" class="button-19 cen">Enregistre</button>
@@ -110,10 +116,10 @@ tr td:last-child {
         cell.innerHTML = '<button class="btn" onclick="removeRow(this)">-</button>';
       } else if (cells[i] === "gameName[]") {
         cell.innerHTML = '<select name="gameName[]" required>'+
-            {% for game in games %}
-            '<option value="{{game.id}}">{{game.game}}</option>'+
-            {% endfor %}
-            '</select>';
+          {% for game in games %}
+        '<option value="{{game.id}}">{{game.game}}</option>'+
+          {% endfor %}
+        '</select>';
       } else {
         var inputType = existingRow.cells[i].querySelector("input").type;
         cell.innerHTML = '<input type="' + inputType + '" name="' + cells[i] + '" required />';

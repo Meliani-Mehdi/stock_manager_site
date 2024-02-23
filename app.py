@@ -528,27 +528,24 @@ def edit_client():
     return render_template('c_edit.html', users=users)
 
 @app.route('/client/edit/<int:id>', methods=['POST', 'GET'])
-def modify_client():
+def modify_client(id):
     if request.method == 'POST':
         first_name = request.form.get('firstName')
         last_name = request.form.get('lastName')
 
-        current_date = datetime.now().strftime("%Y-%m-%d")
-
         conn = sqlite3.connect('form_data.db')
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT INTO client (p_date, first_name, last_name)
-            VALUES (?, ?, ?)
-        ''', (current_date, first_name, last_name))
+            UPDATE client SET first_name = ?, last_name = ? WHERE id = ?
+        ''', (first_name, last_name, id))
         conn.commit()
-
-        client_id = cursor.lastrowid
 
         games = request.form.getlist('gameName[]')
         numbers = request.form.getlist('number[]')
         units = request.form.getlist('unit[]')   
         unit_prices = request.form.getlist('unitPrice[]')  
+
+        cursor.execute('DELETE FROM client_games WHERE client_id = ?', (id, ))
 
         for i in range(len(games)):  
             cursor.execute('SELECT name FROM game WHERE id = ?', (games[i], ))
@@ -557,13 +554,11 @@ def modify_client():
                 INSERT INTO client_games (client_id, game_name, number, unit, unit_price)
                 VALUES (?, ?, ?, ?, ?)
             ''',
-            (client_id, game, numbers[i], units[i], unit_prices[i]))
+            (id, game, numbers[i], units[i], unit_prices[i]))
             conn.commit()
 
         conn.close()
         return redirect('/client')
-
-    ##last was here
 
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
@@ -580,9 +575,24 @@ def modify_client():
             'unitp':data[3],
         }
         games.append(game)
+    
+    cursor.execute('SELECT game_name, number, unit, unit_price FROM client_games WHERE client_id = ?', (id, ))
+    datas = cursor.fetchall()
+    lastgames = []
 
+    for data in datas:
+        game={
+            'name':data[0],
+            'number':data[1],
+            'unit':data[2],
+            'unitp':data[3],
+        }
+        lastgames.append(game)
 
-    return render_template('c_add.html', games=games)
+    cursor.execute('SELECT first_name, last_name FROM client WHERE id = ?', (id, ))
+    fullname = cursor.fetchone()
+
+    return render_template('c_modify.html', games=games, lastgames=enumerate(lastgames), name=fullname, id=id)
 
 
 @app.route('/client/remove', methods=['POST', 'GET'])
