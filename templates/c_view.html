@@ -2,32 +2,6 @@
 
 {% block head %}
 <title>Client View</title>
-<style>
-  table {
-    border-collapse: collapse;
-    width: 94%;
-    margin: 3%;
-    margin-top: 1%;
-  }
-
-  th, td {
-    border: 1px solid #333344;
-    padding: 8px;
-    text-align: left;
-  }
-
-  th {
-    background-color: #f2f2f2;
-  }
-
-  tr:nth-child(even) td {
-    background-color: #3a8cff;
-  }
-
-  tr:nth-child(odd) td {
-    background-color: #4ba0ff;
-  }
-</style>
 {% endblock %}
 
 {% block top %}
@@ -37,13 +11,16 @@
 
 {% block bot %}
   <form method="POST" action="/client/view">
-    <b><label for="search_date">Recherche par date:</label></b>
-    <input type="date" id="search_date" name="search_date">
+    <b><label  for="search_date">Recherche par date:</label></b>
+    <input align="left" type="date" id="search_date" name="search_date">
+    <br>
     <b><label for="search_date">Recherche par nom:</label></b>
     <input type="text" id="search_name" name="search_name">
     <button type="submit">Recherche</button>
   </form>
+  <br><br>
   <h2>Information des clients</h2>
+  <br>
   <table>
     <thead>
       <tr>

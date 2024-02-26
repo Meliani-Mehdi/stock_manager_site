@@ -2,6 +2,7 @@
 <html>
   <head>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/table.css') }}">
     {% block head %}
     <title>EUDOX EMBALAGE</title>
     {% endblock %}
@@ -10,7 +11,7 @@
     <div class="bg">
       <div class="hd">
         <img class="logo" src="{{ url_for('static', filename='assets/lll.png') }}" onclick="goToHomePage()" style="cursor: pointer;"/>
-        <h1 class="fn" onclick="goToHomePage()" style="cursor: pointer;">EUDOX EMBALAGE</h1>
+        <h2 class="fn" onclick="goToHomePage()" style="cursor: pointer;">EUDOX EMBALAGE</h2>
         <ul class="nav">
           <li><a href="/client">Client</a></li>
           <li><a href="/stock">Stock</a></li>
@@ -21,6 +22,7 @@
           <li><a href="/">Logout</a></li>
         </ul>
       </div>
+      <div class="empty"></div>
       <div class="display_frame">
         <div class="top_side">
           {% block top %}{% endblock %}

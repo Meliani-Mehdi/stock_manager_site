@@ -2,33 +2,6 @@
 
 {% block head %}
 <title>Stock View</title>
-<style>
-  table {
-    border-collapse: collapse;
-    width: 94%;
-    margin: 3%;
-    margin-top: 1%;
-  }
-
-  th, td {
-    border: 1px solid #333344;
-    padding: 8px;
-    text-align: left;
-  }
-
-  th {
-    background-color: #f2f2f2;
-  }
-
-  tr:nth-child(even) td {
-    background-color: #3a8cff;
-  }
-
-  tr:nth-child(odd) td {
-    background-color: #4ba0ff;
-  }
-</style>
-
 <script>
   function updateValue(value, index, subIndex, td) {
     if (!isNaN(value) && value !== "") {

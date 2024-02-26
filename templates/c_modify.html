@@ -11,20 +11,6 @@ table {
   margin-top: 1%;
 }
 
-th, td {
-  border: 1px solid #333344;
-  padding: 8px;
-  text-align: left;
-}
-
-th {
-  background-color: #f2f2f2;
-}
-
-tr {
-  height: 20px;
-}
-
 tr:nth-child(even) td {
   background-color: #808080;
 }
@@ -56,7 +42,7 @@ tr td:last-child {
 {% endblock %}
 
 {% block top %}
-<a href="/client" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/client/edit" id="back"><div class="thick-arrow-left"></div></a>
 <a href="/main" id="aclose"><div class="close"></div></a>
 {% endblock %}
 

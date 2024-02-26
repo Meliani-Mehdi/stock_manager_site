@@ -571,8 +571,8 @@ def modify_client(id):
         game={
             'id': data[0],
             'game': data[1],
-            'unit':data[2],
-            'unitp':data[3],
+            'unit':f"{data[2]:.2f}",
+            'unitp':f"{data[3]:.2f}",
         }
         games.append(game)
     
@@ -584,8 +584,8 @@ def modify_client(id):
         game={
             'name':data[0],
             'number':data[1],
-            'unit':data[2],
-            'unitp':data[3],
+            'unit':f"{data[2]:.2f}",
+            'unitp':f"{data[3]:.2f}",
         }
         lastgames.append(game)
 
