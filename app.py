@@ -10,16 +10,6 @@ conn = sqlite3.connect('form_data.db')
 cursor = conn.cursor()
 
 cursor.execute('''
-    CREATE TABLE IF NOT EXISTS stock_data (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        p_date DATE NOT NULL,
-        first_name TEXT NOT NULL,
-        last_name TEXT NOT NULL,
-        payment REAL NOT NULL
-    )
-''')
-
-cursor.execute('''
     CREATE TABLE IF NOT EXISTS client (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         p_date TEXT NOT NULL,
@@ -37,6 +27,17 @@ cursor.execute('''
         unit REAL NOT NULL,
         unit_price REAL NOT NULL,
         FOREIGN KEY (client_id) REFERENCES client(id)
+    )
+''')
+
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS stock (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        game_id INTEGER,
+        p_date TEXT NOT NULL,
+        stock INTEGER NOT NULL,
+        today_stock NOT NULL,
+        FOREIGN KEY (game_id) REFERENCES game(id)
     )
 ''')
 
@@ -68,18 +69,6 @@ cursor.execute('''
         emargement TEXT,
         observation TEXT,
         FOREIGN KEY (worker_id) REFERENCES worker(id)
-    )
-''')
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS stk_game (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        g_name TEXT NOT NULL,
-        stock_id INTEGER,
-        number INTEGER NOT NULL,
-        unit INTEGER NOT NULL,
-        unit_price REAL NOT NULL,
-        FOREIGN KEY (stock_id) REFERENCES stock_data(id)
     )
 ''')
 
