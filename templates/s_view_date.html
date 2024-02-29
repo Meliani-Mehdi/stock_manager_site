@@ -1,0 +1,64 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<title>Stock View</title>
+<script>
+  function updateValue(value, index, subIndex, td) {
+    if (!isNaN(value) && value !== "") {
+      fetch('/update_value', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          index: index,
+          subIndex: subIndex,
+          value: parseFloat(value),
+          td: td,
+        }),
+      });
+    } else {
+      alert("Please enter a valid number.");
+    }
+  }
+</script>
+
+{% endblock %}
+
+{% block top %}
+<a href="/stock/view" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+
+{% block bot %}
+<h1>{{ Date }}</h1>
+<table>
+  <tr>
+    <th>Nom de produit</th>
+    <th>Stock</th>
+    <th>Entree</th>
+    <th>Total</th>
+    <th>Sortie</th>
+    <th>reste</th>
+    <th>unit</th>
+    <th>prix.unit</th>
+    <th>valeur du stock</th>
+    <th>valeur vendu</th>
+  </tr>
+  {% for stock in stocks %}
+  <tr>
+    <td>{{ stock.name }}</td>
+    <td>{{ stock.stock }}</td>
+    <td>{{ stock.today_stock }}</td>
+    <td>{{ stock.today_stock + stock.stock }}</td>
+    <td></td>
+    <td></td>
+    <td class="dFloat">{{ stock.unit }}</td>
+    <td class="dFloat">{{ stock.unitp }}</td>
+    <td></td>
+    <td></td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

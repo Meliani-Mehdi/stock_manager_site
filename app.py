@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, jsonify, Response
+from flask import Flask, render_template, render_template_string, request, redirect, jsonify, Response
 from fpdf import FPDF
 from datetime import datetime, timedelta
 import webview
@@ -36,7 +36,7 @@ cursor.execute('''
         game_id INTEGER,
         p_date TEXT NOT NULL,
         stock INTEGER NOT NULL,
-        today_stock NOT NULL,
+        today_stock INTEGER NOT NULL,
         FOREIGN KEY (game_id) REFERENCES game(id)
     )
 ''')
@@ -1086,38 +1086,44 @@ def remove_stock():
 
     return render_template('s_remove.html')
 
-@app.route('/stock/view', methods=['POST', 'GET'])
-def view_stock():
-    if request.method == 'POST':
-        today_date = request.form.get('search_date', datetime.now().strftime("%Y-%m-%d"), None)
-        if not today_date:
-            today_date = datetime.now().strftime("%Y-%m-%d")
-    else:
-        today_date = datetime.now().strftime("%Y-%m-%d")
-
+@app.route('/stock/view/<date>')
+def view_stock_date(date):
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
-    cursor.execute('SELECT * FROM stv WHERE date = ?', (today_date,))
-    stock_data = cursor.fetchone()
+    cursor.execute('SELECT game.name, stock.stock, stock.today_stock, game.unit, game.unitPrice FROM stock JOIN game ON stock.game_id = game.id WHERE stock.p_date = ?', (date, ))
+    datas = cursor.fetchall()
+    stocks = []
 
-    cursor.execute('SELECT u, up FROM upt WHERE date = ?', (today_date,))
-    vals = cursor.fetchall()
+    for data in datas:
+        stock = {
+            'name': data[0],
+            'stock': data[1],
+            'today_stock': data[2],
+            'unit': data[3],
+            'unitp': data[4],
+        }
+        stocks.append(stock)
 
     conn.close()
 
-    product_names = ["MM Super", "MM FARDEAUX", "GMM", "GMM x25", "GMM x30", "MM IMP MANTOUDJ", "PM", "GM IMP", "GM IMP x20", "PAIN", "POUBELLE BASE", "POUBELLE", "CONGELATION", "GGM", "WELCOME"]
+    return render_template('s_view_date.html', stocks=stocks, Date=date)
 
-    total_stock = sum(stock_data[i * 3 + 2] for i in range(len(product_names)))
-    total_entree = sum(stock_data[i * 3 + 3] for i in range(len(product_names)))
-    total_sort = sum(stock_data[i * 3 + 4] for i in range(len(product_names)))
-    total_rest = sum(stock_data[i * 3 + 2] + stock_data[i * 3 + 3] - stock_data[i * 3 + 4] for i in range(len(product_names)))
-    total_v_stock = sum((stock_data[i * 3 + 2] + stock_data[i * 3 + 3] - stock_data[i * 3 + 4]) * vals[i][0] * vals[i][1] for i in range(len(product_names)))
-    total_v_vendu = sum(stock_data[i * 3 + 4] * vals[i][0] * vals[i][1] for i in range(len(product_names)))
+@app.route('/stock/view', methods=['POST', 'GET'])
+def view_stock():
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    if request.method == 'POST' and request.form.get('search_date'):
+        cursor.execute('SELECT DISTINCT p_date FROM stock WHERE p_date = ?;', (request.form.get('search_date'), ))
+    else:
+        cursor.execute('SELECT DISTINCT p_date FROM stock;')
 
-    return render_template('s_view.html', stock_data=stock_data, vals=vals, product_names=product_names, td=today_date,
-                           total_stock=total_stock, total_entree=total_entree, total_sort=total_sort,
-                           total_rest=total_rest, total_v_stock=total_v_stock, total_v_vendu=total_v_vendu)
+
+    dates = cursor.fetchall()
+
+    conn.close()
+
+    return render_template('s_view.html',dates = dates)
 
 @app.route('/update_value', methods=['POST'])
 def update_value():

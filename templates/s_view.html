@@ -2,27 +2,18 @@
 
 {% block head %}
 <title>Stock View</title>
-<script>
-  function updateValue(value, index, subIndex, td) {
-    if (!isNaN(value) && value !== "") {
-      fetch('/update_value', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          index: index,
-          subIndex: subIndex,
-          value: parseFloat(value),
-          td: td,
-        }),
-      });
-    } else {
-      alert("Please enter a valid number.");
-    }
-  }
-</script>
+<style>
+table {
+  width: 50%;
+  margin-left: 25%;
+  margin-right: 25%;
+}
 
+td ,th{
+    text-align: center;
+  }
+
+</style>
 {% endblock %}
 
 {% block top %}
@@ -32,54 +23,20 @@
 
 
 {% block bot %}
-
 <form method="POST" action="/stock/view">
   <b><label for="search_date">Search Date:</label></b>
   <input type="date" id="search_date" name="search_date">
   <button type="submit">Search</button>
 </form>
 
-<h1>{{ stock_data[1] }}</h1>
 <table>
   <tr>
-    <th>Nom de produit</th>
-    <th>Stock</th>
-    <th>Entree</th>
-    <th>Total</th>
-    <th>Sortie</th>
-    <th>reste</th>
-    <th>unit</th>
-    <th>prix.unit</th>
-    <th>valeur du stock</th>
-    <th>valeur vendu</th>
+    <th>Date</th>
   </tr>
-
-  {% for i in range(15) %}
-    <tr>
-      <td>{{ product_names[i] }}</td>
-      <td>{{ stock_data[i * 3 + 2] }}</td>
-      <td>{{ stock_data[i * 3 + 3] }}</td>
-      <td>{{ stock_data[i * 3 + 2] + stock_data[i * 3 + 3] }}</td>
-      <td>{{ stock_data[i * 3 + 4] }}</td>
-      <td>{{ stock_data[i * 3 + 2] + stock_data[i * 3 + 3] - stock_data[i * 3 + 4] }}</td>
-      <td contenteditable="true" onblur="updateValue(this.innerText, {{ i }}, 0, '{{ stock_data[1] }}')">{{ vals[i][0] }}</td>
-      <td contenteditable="true" onblur="updateValue(this.innerText, {{ i }}, 1, '{{ stock_data[1] }}')">{{ vals[i][1] }}</td>
-      <td>{{ (stock_data[i * 3 + 2] + stock_data[i * 3 + 3] - stock_data[i * 3 + 4]) * vals[i][0] * vals[i][1] }}</td>
-      <td>{{ stock_data[i * 3 + 4] * vals[i][0] * vals[i][1] }}</td>
-    </tr>
+  {% for Date in dates %}
+  <tr onclick="window.location='/stock/view/{{ Date[0] }}';" style="cursor: pointer;">
+    <td>{{ Date[0] }}</td>
+  </tr>
   {% endfor %}
-
-  <tr>
-    <td>Total</td>
-    <td>{{ total_stock }}</td>
-    <td>{{ total_entree }}</td>
-    <td>{{ total_stock + total_entree }}</td>
-    <td>{{ total_sort }}</td>
-    <td>{{ total_rest }}</td>
-    <td></td>
-    <td></td>
-    <td>{{ total_v_stock }}</td>
-    <td>{{ total_v_vendu }}</td>
-  </tr>
 </table>
 {% endblock %}
