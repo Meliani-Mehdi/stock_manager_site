@@ -1,4 +1,4 @@
-from flask import Flask, render_template, render_template_string, request, redirect, jsonify, Response
+from flask import Flask, render_template, request, redirect, jsonify, Response
 from fpdf import FPDF
 from datetime import datetime, timedelta
 import webview
@@ -169,108 +169,16 @@ conn.close()
 def insert_daily_data():
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
-
     current_date = datetime.now().strftime("%Y-%m-%d")
-    cursor.execute('SELECT * FROM stv')
+
+    cursor.execute('SELECT DISTINCT p_date FROM stock WHERE p_date = ?', (current_date, ))
     test = cursor.fetchone()
-
     if test is None:
-        cursor.execute('''
-            INSERT INTO stv (
-                date,
-                MM_super_st, MM_super_e, MM_super_so,
-                MM_Fardeaux_st, MM_Fardeaux_e, MM_Fardeaux_so,
-                GMM_st, GMM_e, GMM_so,
-                GMM_x25_st, GMM_x25_e, GMM_x25_so,
-                GMM_x30_st, GMM_x30_e, GMM_x30_so,
-                MM_IMP_MANTOUDJ_st, MM_IMP_MANTOUDJ_e, MM_IMP_MANTOUDJ_so,
-                PM_st, PM_e, PM_so,
-                GM_IMP_st, GM_IMP_e, GM_IMP_so,
-                GM_IMP_x20_st, GM_IMP_x20_e, GM_IMP_x20_so,
-                PAIN_st, PAIN_e, PAIN_so,
-                POUBELLE_BASE_st, POUBELLE_BASE_e, POUBELLE_BASE_so,
-                POUBELLE_st, POUBELLE_e, POUBELLE_so,
-                CONGELATION_st, CONGELATION_e, CONGELATION_so,
-                GGM_st, GGM_e, GGM_so,
-                WELCOME_st, WELCOME_e, WELCOME_so
-            ) VALUES (?, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-        ''', ( current_date,))
-        
-        for i in range(15):
-            cursor.execute('''
-                INSERT INTO upt (date, num, u, up)
-                VALUES (?, ?, 0, 0)
-            ''',(current_date, i))
-
-    cursor.execute('SELECT COUNT(*) FROM stv WHERE date = ?', (current_date,))
-    count = cursor.fetchone()[0]
-
-    if count == 0:
-
-        cursor.execute('''
-            SELECT MM_super_st, MM_super_e, MM_super_so, MM_Fardeaux_st, MM_Fardeaux_e, MM_Fardeaux_so,
-                   GMM_st, GMM_e, GMM_so, GMM_x25_st, GMM_x25_e, GMM_x25_so, GMM_x30_st, GMM_x30_e, GMM_x30_so,
-                   MM_IMP_MANTOUDJ_st, MM_IMP_MANTOUDJ_e, MM_IMP_MANTOUDJ_so, PM_st, PM_e, PM_so, GM_IMP_st, GM_IMP_e,
-                   GM_IMP_so, GM_IMP_x20_st, GM_IMP_x20_e, GM_IMP_x20_so, PAIN_st, PAIN_e, PAIN_so, POUBELLE_BASE_st,
-                   POUBELLE_BASE_e, POUBELLE_BASE_so, POUBELLE_st, POUBELLE_e, POUBELLE_so, CONGELATION_st, CONGELATION_e,
-                   CONGELATION_so, GGM_st, GGM_e, GGM_so, WELCOME_st, WELCOME_e, WELCOME_so
-            FROM stv
-            WHERE date = (SELECT MAX(date) FROM stv)
-        ''')
-
-        last_day_values = cursor.fetchone()
-
-        if last_day_values:
-
-            MM_super_st = last_day_values[0] + last_day_values[1] - last_day_values[2]
-            MM_Fardeaux_st = last_day_values[3] + last_day_values[4] - last_day_values[5]
-            GMM_st = last_day_values[6] + last_day_values[7] - last_day_values[8]
-            GMM_x25_st = last_day_values[9] + last_day_values[10] - last_day_values[11]
-            GMM_x30_st = last_day_values[12] + last_day_values[13] - last_day_values[14]
-            MM_IMP_MANTOUDJ_st = last_day_values[15] + last_day_values[16] - last_day_values[17]
-            PM_st = last_day_values[18] + last_day_values[19] - last_day_values[20]
-            GM_IMP_st = last_day_values[21] + last_day_values[22] - last_day_values[23]
-            GM_IMP_x20_st = last_day_values[24] + last_day_values[25] - last_day_values[26]
-            PAIN_st = last_day_values[27] + last_day_values[28] - last_day_values[29]
-            POUBELLE_BASE_st = last_day_values[30] + last_day_values[31] - last_day_values[32]
-            POUBELLE_st = last_day_values[33] + last_day_values[34] - last_day_values[35]
-            CONGELATION_st = last_day_values[36] + last_day_values[37] - last_day_values[38]
-            GGM_st = last_day_values[39] + last_day_values[40] - last_day_values[41]
-            WELCOME_st = last_day_values[42] + last_day_values[43] - last_day_values[44]
-
-
-            cursor.execute('''
-                INSERT INTO stv (date, MM_super_st, MM_super_e, MM_super_so, MM_Fardeaux_st, MM_Fardeaux_e, MM_Fardeaux_so,
-                   GMM_st, GMM_e, GMM_so, GMM_x25_st, GMM_x25_e, GMM_x25_so, GMM_x30_st, GMM_x30_e, GMM_x30_so,
-                   MM_IMP_MANTOUDJ_st, MM_IMP_MANTOUDJ_e, MM_IMP_MANTOUDJ_so, PM_st, PM_e, PM_so, GM_IMP_st, GM_IMP_e,
-                   GM_IMP_so, GM_IMP_x20_st, GM_IMP_x20_e, GM_IMP_x20_so, PAIN_st, PAIN_e, PAIN_so, POUBELLE_BASE_st,
-                   POUBELLE_BASE_e, POUBELLE_BASE_so, POUBELLE_st, POUBELLE_e, POUBELLE_so, CONGELATION_st, CONGELATION_e,
-                   CONGELATION_so, GGM_st, GGM_e, GGM_so, WELCOME_st, WELCOME_e, WELCOME_so)
-                VALUES (?, ?, 0, 0, ?, 0, 0, ?, 0, 0, ?, 0, 0, ?, 0, 0, ?, 0, 0, ?, 0, 0, ?, 0, 0, ?, 0, 0,
-                        ?, 0, 0, ?, 0, 0, ?, 0, 0, ?, 0, 0, ?, 0, 0, ?, 0, 0)
-            ''', (current_date, MM_super_st, MM_Fardeaux_st, GMM_st, GMM_x25_st, GMM_x30_st, MM_IMP_MANTOUDJ_st, PM_st, GM_IMP_st, GM_IMP_x20_st, PAIN_st, POUBELLE_BASE_st, POUBELLE_st, CONGELATION_st, GGM_st, WELCOME_st))
-
-
-    cursor.execute('SELECT COUNT(*) FROM upt WHERE date = ?', (current_date,))
-    count = cursor.fetchone()[0]
-
-    if count == 0:
-        cursor.execute('''
-            SELECT u, up FROM upt WHERE date = (SELECT MAX(date) FROM upt)
-        ''')
-
-        last_day_values = cursor.fetchall()
-
-        if last_day_values:
-            for i in range(15):
-                cursor.execute('''
-                    INSERT INTO upt (date, num, u, up)
-                    VALUES (?, ?, ?, ?)
-                ''',(current_date, i, last_day_values[i][0], last_day_values[i][1]))
-
+        cursor.execute('SELECT id FROM game')
+        game_ids = cursor.fetchall()
+        pass
 
     conn.commit()
-
     conn.close()
 
 insert_daily_data()
@@ -1096,12 +1004,34 @@ def view_stock_date(date):
     stocks = []
 
     for data in datas:
+
+        cursor.execute(
+            """
+                SELECT
+                    SUM(unit * unit_price * number) AS total_cost,
+                    SUM(number) AS total_units
+                FROM
+                    client
+                    JOIN client_games ON client.id = client_games.client_id
+                WHERE
+                    p_date = ? AND
+                    game_name = ?
+            ;""", (date, data[0])
+        )
+        tp = cursor.fetchone()
+        print(tp[0])
+
+
         stock = {
             'name': data[0],
             'stock': data[1],
             'today_stock': data[2],
+            't': data[1] + data[2],
+            'exit': tp[1],
+            'total': data[1] + data[2] - tp[1],
             'unit': data[3],
             'unitp': data[4],
+            'price': tp[0],
         }
         stocks.append(stock)
 

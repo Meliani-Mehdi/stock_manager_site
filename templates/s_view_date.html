@@ -51,13 +51,13 @@
     <td>{{ stock.name }}</td>
     <td>{{ stock.stock }}</td>
     <td>{{ stock.today_stock }}</td>
-    <td>{{ stock.today_stock + stock.stock }}</td>
-    <td></td>
-    <td></td>
+    <td>{{ stock.t }}</td>
+    <td>{{ stock.exit }}</td>
+    <td>{{ stock.total }}</td>
     <td class="dFloat">{{ stock.unit }}</td>
     <td class="dFloat">{{ stock.unitp }}</td>
-    <td></td>
-    <td></td>
+    <td class="dFloat">{{ stock.total * stock.unit * stock.unitp}}</td>
+    <td class="dFloat">{{ stock.price }}</td>
   </tr>
   {% endfor %}
 </table>
