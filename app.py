@@ -54,7 +54,8 @@ cursor.execute('''
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         unit REAL NOT NULL,
-        unitPrice REAL NOT NULL
+        unitPrice REAL NOT NULL,
+        deleted INTEGER DEFAULT 0 
     )
 ''')
 
@@ -174,12 +175,12 @@ def insert_daily_data():
     cursor.execute('SELECT DISTINCT MAX(p_date) FROM stock')
     test = cursor.fetchone()[0]
     if test is None:
-        cursor.execute('SELECT id FROM game')
+        cursor.execute('SELECT id FROM game WHERE deleted = 0')
         game_data = cursor.fetchall()
         for game in game_data:
             cursor.execute('INSERT INTO stock(game_id, p_date, stock, today_stock) VALUES(?, ?, 0, 0)', (game[0], current_date))
     elif test != current_date:
-        cursor.execute('SELECT id, name FROM game')
+        cursor.execute('SELECT id, name FROM game WHERE deleted = 0')
         game_data = cursor.fetchall()
         for game in game_data:
             cursor.execute('SELECT SUM(client_games.number) AS num FROM client_games JOIN client ON client_games.client_id = client.id WHERE client.p_date = ? AND client_games.game_name = ?', (test, game[1]))
@@ -214,8 +215,12 @@ def add_game():
     if request.method == 'POST':
         conn = sqlite3.connect('form_data.db')
         cursor = conn.cursor()
+        current_date = datetime.now().strftime("%Y-%m-%d")
 
         cursor.execute('INSERT INTO game(name, unit, unitPrice) VALUES(?, ?, ?)', (request.form.get('name'), request.form.get('unite'), request.form.get('punit')))
+        game_id = cursor.lastrowid
+        cursor.execute('INSERT INTO stock(game_id, p_date, stock, today_stock) VALUES(?, ?, 0, 0)', (game_id, current_date))
+
         conn.commit()
         conn.close()
         return redirect('/game')
@@ -226,7 +231,7 @@ def edit_game():
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
-    cursor.execute('SELECT * FROM game')
+    cursor.execute('SELECT * FROM game WHERE deleted = 0')
     data_f = cursor.fetchall()
     games = []
 
@@ -252,7 +257,7 @@ def edit_game_id(id):
         conn.close()
         return redirect('/game')
 
-    cursor.execute('SELECT * FROM game WHERE id = ?', (id, ))
+    cursor.execute('SELECT * FROM game WHERE id = ? WHERE deleted = 0', (id, ))
     data_f = cursor.fetchone()
     game = {
         'id': data_f[0],
@@ -269,7 +274,7 @@ def remove_game():
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
-    cursor.execute('SELECT * FROM game')
+    cursor.execute('SELECT * FROM game WHERE deleted = 0')
     data_f = cursor.fetchall()
     games = []
 
@@ -290,7 +295,7 @@ def remove_game_id(id):
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
-    cursor.execute('DELETE FROM game WHERE id = ?', (id, ))
+    cursor.execute('UPDATE game set deleted = 1 WHERE id = ?', (id, ))
     conn.commit()
     conn.close()
 
@@ -305,7 +310,7 @@ def view_game():
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
-    cursor.execute('SELECT * FROM game')
+    cursor.execute('SELECT * FROM game WHERE deleted = 0')
     data_f = cursor.fetchall()
     games = []
 
@@ -351,7 +356,7 @@ def add_client():
         unit_prices = request.form.getlist('unitPrice[]')  
 
         for i in range(len(games)):  
-            cursor.execute('SELECT name FROM game WHERE id = ?', (games[i], ))
+            cursor.execute('SELECT name FROM game WHERE id = ? AND deleted = 0', (games[i], ))
             game=cursor.fetchone()[0]
             cursor.execute('''
                 INSERT INTO client_games (client_id, game_name, number, unit, unit_price)
@@ -365,7 +370,7 @@ def add_client():
 
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM game')
+    cursor.execute('SELECT * FROM game WHERE deleted = 0')
 
     datas = cursor.fetchall()
     games = []
@@ -459,7 +464,7 @@ def modify_client(id):
         cursor.execute('DELETE FROM client_games WHERE client_id = ?', (id, ))
 
         for i in range(len(games)):  
-            cursor.execute('SELECT name FROM game WHERE id = ?', (games[i], ))
+            cursor.execute('SELECT name FROM game WHERE id = ? AND deleted = 0', (games[i], ))
             game=cursor.fetchone()[0]
             cursor.execute('''
                 INSERT INTO client_games (client_id, game_name, number, unit, unit_price)
@@ -473,7 +478,7 @@ def modify_client(id):
 
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM game')
+    cursor.execute('SELECT * FROM game WHERE deleted = 0')
 
     datas = cursor.fetchall()
     games = []
@@ -971,7 +976,7 @@ def add_stock():
         conn.close()
         return redirect('/stock')
 
-    cursor.execute('SELECT id, name from game')
+    cursor.execute('SELECT id, name FROM game WHERE deleted = 0')
     games = cursor.fetchall()
     conn.close()
     return render_template('s_add.html', games=games)
@@ -991,7 +996,7 @@ def remove_stock():
         conn.close()
         return redirect('/stock')
 
-    cursor.execute('SELECT id, name from game')
+    cursor.execute('SELECT id, name FROM game WHERE deleted = 0')
     games = cursor.fetchall()
     conn.close()
     
