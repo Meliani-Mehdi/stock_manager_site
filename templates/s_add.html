@@ -4,53 +4,34 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
 <script>
   function addFields() {
-    var maxFields = 14;
-    var currentFields = document.querySelectorAll('.duplicate-field').length;
+    var wrapper = document.getElementById('duplicate-fields');
+    var fieldHTML = '<div class="duplicate-field"><br>' +
+      '<label class="l-lab" for="game">GAME:</label><br>' +
+      '<select class="l-inp" name="gameName[]" required>' +
+      {% for game in games %}
+        '<option value="{{ game[0] }}">{{ game[1] }}</option>' +
+      {% endfor %}
+      '</select>' +
+      '<br><br>' +
+      '<label class="l-lab" for="number">Number:</label>' +
+      '<input type="number" class="l-inp" name="number[]" required>' +
+      '<br><br>' +
+      '<button type="button" onclick="removeFields(this)" class="button-19">-</button>' +
+      '<br><br>'+
+      '</div>';
 
-    if (currentFields < maxFields) {
-      var wrapper = document.getElementById('duplicate-fields');
-      var fieldHTML = '<div class="duplicate-field"><br>' +
-        '<label class="l-lab" for="game">G.A.M.E:</label><br>' +
-        '<select class="l-inp" name="gameName[]" required>' +
-        '<option value="MM super">MM super</option>' +
-        '<option value="MM Fardeaux">MM Fardeaux</option>' +
-        '<option value="GMM">GMM</option>' +
-        '<option value="GMM x25">GMM x25</option>' +
-        '<option value="GMM x30">GMM x30</option>' +
-        '<option value="MM IMP MANTOUDJ">MM IMP MANTOUDJ</option>' +
-        '<option value="PM">PM</option>' +
-        '<option value="GM IMP">GM IMP</option>' +
-        '<option value="GM IMP x20">GM IMP x20</option>' +
-        '<option value="PAIN">PAIN</option>' +
-        '<option value="POUBELLE BASE">POUBELLE BASE</option>' +
-        '<option value="POUBELLE">POUBELLE</option>' +
-        '<option value="CONGELATION">CONGELATION CARTON</option>' +
-        '<option value="GGM">GGM</option>' +
-        '<option value="WELCOME">WELCOME</option>'+
-        '</select>' +
-        '<br><br>' +
-        '<label class="l-lab" for="number">Number:</label>' +
-        '<input type="number" class="l-inp" name="number[]" required>' +
-        '<br><br>' +
-        '<button type="button" onclick="removeFields(this)" class="button-19">-</button>' +
-        '<br><br>'+
-        '</div>';
-
-      var newDiv = document.createElement('div');
-      newDiv.innerHTML = fieldHTML;
-      wrapper.appendChild(newDiv);
-    } else {
-      alert('You can add up to 15 games.');
-    }
+    var newDiv = document.createElement('div');
+    newDiv.innerHTML = fieldHTML;
+    wrapper.appendChild(newDiv);
   }
 
   function removeFields(button) {
     var wrapper = document.getElementById('duplicate-fields');
-    var fieldToRemove = button.parentNode.parentNode; // Get the grandparent of the button
+    var fieldToRemove = button.parentNode.parentNode;
     wrapper.removeChild(fieldToRemove);
   }
 </script>
-<title>Add Client</title>
+<title>Remove Client</title>
 {% endblock %}
 
 {% block top %}
@@ -60,23 +41,11 @@
 
 {% block bot %}
 <form id="stockForm" action="/stock/add" method="post">
-  <label class="l-lab" for="game">G.A.M.E:</label><br>
+  <label class="l-lab" for="game">GAME:</label><br>
   <select class="l-inp" name="gameName[]" required>
-    <option value="MM super">MM super</option>
-    <option value="MM Fardeaux">MM Fardeaux</option>
-    <option value="GMM">GMM</option>
-    <option value="GMM x25">GMM x25</option>
-    <option value="GMM x30">GMM x30</option>
-    <option value="MM IMP MANTOUDJ">MM IMP MANTOUDJ</option>
-    <option value="PM">PM</option>
-    <option value="GM IMP">GM IMP</option>
-    <option value="GM IMP x20">GM IMP x20</option>
-    <option value="PAIN">PAIN</option>
-    <option value="POUBELLE BASE">POUBELLE BASE</option>
-    <option value="POUBELLE">POUBELLE</option>
-    <option value="CONGELATION">CONGELATION CARTON</option>
-    <option value="GGM">GGM</option>
-    <option value="WELCOME">WELCOME</option>
+    {% for game in games %}
+      <option value="{{ game[0] }}">{{ game[1] }}</option>
+    {% endfor %}
   </select>
   <br><br>
   <label class="l-lab" for="number">Nombre:</label>

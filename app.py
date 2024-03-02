@@ -171,12 +171,26 @@ def insert_daily_data():
     cursor = conn.cursor()
     current_date = datetime.now().strftime("%Y-%m-%d")
 
-    cursor.execute('SELECT DISTINCT p_date FROM stock WHERE p_date = ?', (current_date, ))
-    test = cursor.fetchone()
+    cursor.execute('SELECT DISTINCT MAX(p_date) FROM stock')
+    test = cursor.fetchone()[0]
     if test is None:
         cursor.execute('SELECT id FROM game')
-        game_ids = cursor.fetchall()
-        pass
+        game_data = cursor.fetchall()
+        for game in game_data:
+            cursor.execute('INSERT INTO stock(game_id, p_date, stock, today_stock) VALUES(?, ?, 0, 0)', (game[0], current_date))
+    elif test != current_date:
+        cursor.execute('SELECT id, name FROM game')
+        game_data = cursor.fetchall()
+        for game in game_data:
+            cursor.execute('SELECT SUM(client_games.number) AS num FROM client_games JOIN client ON client_games.client_id = client.id WHERE client.p_date = ? AND client_games.game_name = ?', (test, game[1]))
+            rem = cursor.fetchone()[0]
+            cursor.execute('SELECT stock, today_stock FROM stock WHERE p_date = ? AND game_id = ?', (test, game[0]))
+            stk = cursor.fetchone()
+            stock = 0 if stk[0] is None else stk[0]
+            tstock = 0 if stk[1] is None else stk[1]
+            remove = 0 if rem is None else rem
+            total = stock + tstock - remove
+            cursor.execute('INSERT INTO stock(game_id, p_date, stock, today_stock) VALUES(?, ?, ?, 0)', (game[0], current_date, total))
 
     conn.commit()
     conn.close()
@@ -944,55 +958,60 @@ def stock():
 
 @app.route('/stock/add', methods=['POST', 'GET'])
 def add_stock():
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    current_date = datetime.now().strftime("%Y-%m-%d")
+
     if request.method == 'POST':
-        current_date = datetime.now().strftime("%Y-%m-%d")
-
-        duplicate_games = request.form.getlist('gameName[]')
-        duplicate_numbers = request.form.getlist('number[]')
-
-        conn = sqlite3.connect('form_data.db')
-        cursor = conn.cursor()
-
-        for i in range(len(duplicate_games)):  
-            updated_game = duplicate_games[i].replace(' ', '_') + '_e'
-            cursor.execute(f"SELECT {updated_game} FROM stv WHERE date = ?", (current_date,))
-            old_v = cursor.fetchone()
-
-            if old_v:
-                new_v = old_v[0] + int(duplicate_numbers[i])
-                cursor.execute(f"UPDATE stv SET {updated_game} = ? WHERE date = ?", (new_v, current_date))
-                conn.commit()
-
+        names = request.form.getlist('gameName[]')
+        numbers = request.form.getlist('number[]')
+        for name, number in zip(names, numbers):
+            cursor.execute('UPDATE stock SET today_stock = today_stock + ? WHERE game_id = ? AND p_date = ?', (number, name, current_date))
+        conn.commit()
         conn.close()
         return redirect('/stock')
 
-    return render_template('s_add.html')
+    cursor.execute('SELECT id, name from game')
+    games = cursor.fetchall()
+    conn.close()
+    return render_template('s_add.html', games=games)
 
-@app.route('/stock/remove', methods=['POST', 'GET'])
+@app.route('/stock/remove', methods=['GET', 'POST'])
 def remove_stock():
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    current_date = datetime.now().strftime("%Y-%m-%d")
+
     if request.method == 'POST':
-        current_date = datetime.now().strftime("%Y-%m-%d")
-
-        duplicate_games = request.form.getlist('gameName[]')
-        duplicate_numbers = request.form.getlist('number[]')
-
-        conn = sqlite3.connect('form_data.db')
-        cursor = conn.cursor()
-
-        for i in range(len(duplicate_games)):  
-            updated_game = duplicate_games[i].replace(' ', '_') + '_e'
-            cursor.execute(f"SELECT {updated_game} FROM stv WHERE date = ?", (current_date,))
-            old_v = cursor.fetchone()
-
-            if old_v:
-                new_v = old_v[0] - int(duplicate_numbers[i])
-                cursor.execute(f"UPDATE stv SET {updated_game} = ? WHERE date = ?", (new_v, current_date))
-                conn.commit()
-
+        names = request.form.getlist('gameName[]')
+        numbers = request.form.getlist('number[]')
+        for i in range(len(names)):
+            cursor.execute('UPDATE stock SET today_stock = today_stock - ? WHERE game_id = ? AND p_date = ?', (numbers[i], names[i], current_date))
+        conn.commit()
         conn.close()
         return redirect('/stock')
 
-    return render_template('s_remove.html')
+    cursor.execute('SELECT id, name from game')
+    games = cursor.fetchall()
+    conn.close()
+    
+    return render_template('s_remove.html', games=games)
+
+@app.route('/stock/view', methods=['POST', 'GET'])
+def view_stock():
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    if request.method == 'POST' and request.form.get('search_date'):
+        cursor.execute('SELECT DISTINCT p_date FROM stock WHERE p_date = ? ORDER BY p_date DESC;', (request.form.get('search_date'), ))
+    else:
+        cursor.execute('SELECT DISTINCT p_date FROM stock ORDER BY p_date DESC;')
+
+
+    dates = cursor.fetchall()
+
+    conn.close()
+
+    return render_template('s_view.html',dates = dates)
 
 @app.route('/stock/view/<date>')
 def view_stock_date(date):
@@ -1019,19 +1038,19 @@ def view_stock_date(date):
             ;""", (date, data[0])
         )
         tp = cursor.fetchone()
-        print(tp[0])
-
+        tot =  0 if tp[1] is None else tp[1]
+        price =  0 if tp[0] is None else tp[0]
 
         stock = {
             'name': data[0],
             'stock': data[1],
             'today_stock': data[2],
             't': data[1] + data[2],
-            'exit': tp[1],
-            'total': data[1] + data[2] - tp[1],
+            'exit': tot,
+            'total': data[1] + data[2] - tot,
             'unit': data[3],
             'unitp': data[4],
-            'price': tp[0],
+            'price': price,
         }
         stocks.append(stock)
 
@@ -1039,21 +1058,6 @@ def view_stock_date(date):
 
     return render_template('s_view_date.html', stocks=stocks, Date=date)
 
-@app.route('/stock/view', methods=['POST', 'GET'])
-def view_stock():
-    conn = sqlite3.connect('form_data.db')
-    cursor = conn.cursor()
-    if request.method == 'POST' and request.form.get('search_date'):
-        cursor.execute('SELECT DISTINCT p_date FROM stock WHERE p_date = ?;', (request.form.get('search_date'), ))
-    else:
-        cursor.execute('SELECT DISTINCT p_date FROM stock;')
-
-
-    dates = cursor.fetchall()
-
-    conn.close()
-
-    return render_template('s_view.html',dates = dates)
 
 @app.route('/update_value', methods=['POST'])
 def update_value():
