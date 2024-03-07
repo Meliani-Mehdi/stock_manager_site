@@ -4,6 +4,7 @@
 }
 
 #bg_img{
+  background-color: #155499;
   background-image: url('bg.jpg');
   background-size: cover;
   height: 100vh;

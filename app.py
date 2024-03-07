@@ -84,68 +84,6 @@ cursor.execute('''
 ''')
 
 cursor.execute('''
-    CREATE TABLE IF NOT EXISTS stv (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT NOT NULL,
-        MM_super_st INTEGER NOT NULL,
-        MM_super_e INTEGER NOT NULL,
-        MM_super_so INTEGER NOT NULL,
-        MM_Fardeaux_st INTEGER NOT NULL,
-        MM_Fardeaux_e INTEGER NOT NULL,
-        MM_Fardeaux_so INTEGER NOT NULL,
-        GMM_st INTEGER NOT NULL,
-        GMM_e INTEGER NOT NULL,
-        GMM_so INTEGER NOT NULL,
-        GMM_x25_st INTEGER NOT NULL,
-        GMM_x25_e INTEGER NOT NULL,
-        GMM_x25_so INTEGER NOT NULL,
-        GMM_x30_st INTEGER NOT NULL,
-        GMM_x30_e INTEGER NOT NULL,
-        GMM_x30_so INTEGER NOT NULL,
-        MM_IMP_MANTOUDJ_st INTEGER NOT NULL,
-        MM_IMP_MANTOUDJ_e INTEGER NOT NULL,
-        MM_IMP_MANTOUDJ_so INTEGER NOT NULL,
-        PM_st INTEGER NOT NULL,
-        PM_e INTEGER NOT NULL,
-        PM_so INTEGER NOT NULL,
-        GM_IMP_st INTEGER NOT NULL,
-        GM_IMP_e INTEGER NOT NULL,
-        GM_IMP_so INTEGER NOT NULL,
-        GM_IMP_x20_st INTEGER NOT NULL,
-        GM_IMP_x20_e INTEGER NOT NULL,
-        GM_IMP_x20_so INTEGER NOT NULL,
-        PAIN_st INTEGER NOT NULL,
-        PAIN_e INTEGER NOT NULL,
-        PAIN_so INTEGER NOT NULL,
-        POUBELLE_BASE_st INTEGER NOT NULL,
-        POUBELLE_BASE_e INTEGER NOT NULL,
-        POUBELLE_BASE_so INTEGER NOT NULL,
-        POUBELLE_st INTEGER NOT NULL,
-        POUBELLE_e INTEGER NOT NULL,
-        POUBELLE_so INTEGER NOT NULL,
-        CONGELATION_st INTEGER NOT NULL,
-        CONGELATION_e INTEGER NOT NULL,
-        CONGELATION_so INTEGER NOT NULL,
-        GGM_st INTEGER NOT NULL,
-        GGM_e INTEGER NOT NULL,
-        GGM_so INTEGER NOT NULL,
-        WELCOME_st INTEGER NOT NULL,
-        WELCOME_e INTEGER NOT NULL,
-        WELCOME_so INTEGER NOT NULL
-    )
-''')
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS upt (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT NOT NULL,
-        num INTEGER NOT NULL,
-        u INTEGER NOT NULL,
-        up REAL NOT NULL
-    )
-''')
-
-cursor.execute('''
     CREATE TABLE IF NOT EXISTS d_mat (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         t_id INTEGER NOT NULL,
@@ -917,6 +855,11 @@ def view_detail():
 
 @app.route('/detail/view/<int:d>')
 def view_d_detail(d):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+
+    cursor.execute('here')
+
     return render_template('dt_view.html', date=d)
 
 @app.route('/detail/view/<int:d>/<int:num>', methods=['POST', 'GET'])
@@ -1383,6 +1326,9 @@ def w_time_view(name, date):
 
     return render_template('tn_view.html', results=results, name=name, date=date)
 
+@app.route('/cost')
+def cost():
+    return render_template('frai.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
