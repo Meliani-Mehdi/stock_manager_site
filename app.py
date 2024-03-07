@@ -84,21 +84,20 @@ cursor.execute('''
 ''')
 
 cursor.execute('''
-    CREATE TABLE IF NOT EXISTS d_mat (
+    CREATE TABLE IF NOT EXISTS detail (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        t_id INTEGER NOT NULL,
         date TEXT NOT NULL,
-        p_num INTEGER NOT NULL,
-        nember_d_m INTEGER,
-        poid_udm REAL,
-        poid_f REAL,
-        number_f_r REAL,
-        poid_feb REAL,
-        poid_be REAL,
-        poid_bu REAL,
-        stock INTEGER,
-        unit REAL,
-        p_unit REAL
+        game TEXT NOT NULL,
+        number_d_m INTEGER DEFAULT 0,
+        poid_udm REAL DEFAULT 0,
+        poid_f REAL DEFAULT 0,
+        number_f_r REAL DEFAULT 0,
+        poid_feb REAL DEFAULT 0,
+        poid_be REAL DEFAULT 0,
+        poid_bu REAL DEFAULT 0,
+        stock INTEGER DEFAULT 0,
+        unit REAL DEFAULT 0,
+        p_unit REAL DEFAULT 0
     )
 ''')
 
@@ -796,20 +795,15 @@ def add_detail():
 
     day = datetime.now().strftime("%Y-%m-%d")
 
-    cursor.execute("SELECT MAX(t_id) FROM d_mat")
-    max_t_id = cursor.fetchone()[0]
-    t_id = max_t_id + 1 if max_t_id is not None else 1
+    cursor.execute("SELECT date FROM detail WHERE date = ?", (day,))
+    d = cursor.fetchone()
 
-    cursor.execute("SELECT COUNT(*) FROM d_mat WHERE date = ?", (day,))
-    d = cursor.fetchone()[0]
+    if d is None:
+        cursor.execute('SELECT name FROM game WHERE deleted = 0')
+        games = cursor.fetchall()
 
-    if d == 0:
-        for p_num in range(15):
-            cursor.execute("""
-                INSERT INTO d_mat (t_id, date, p_num, nember_d_m, poid_udm, poid_f, number_f_r, poid_feb, poid_be, poid_bu, stock, unit, p_unit)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (t_id, day, p_num, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0.0))
-
+        for game in games:
+            cursor.execute('INSERT INTO detail(date, game) VALUES(?, ?)', (day, game[0]))
         conn.commit()
         conn.close()
         return render_template('d_add.html', message="Added successfully!")
@@ -817,53 +811,70 @@ def add_detail():
     conn.close()
     return render_template('d_add.html', message="Records for today already exist.")
 
-@app.route('/detail/remove')
+@app.route('/detail/remove', methods=['POST', 'GET'])
 def delete_detail():
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
-    cursor.execute("SELECT t_id, date FROM d_mat GROUP BY t_id, date ORDER BY date DESC")
+    if request.method == 'POST':
+        day = request.form.get('search_date')
+        if day != '':
+            cursor.execute("SELECT DISTINCT date FROM detail WHERE date = ? ORDER BY date DESC", (day, ))
+            result = cursor.fetchall()
+            conn.close()
+            return render_template('d_remove.html', dates=result)
+
+    cursor.execute("SELECT DISTINCT date FROM detail ORDER BY date DESC")
     result = cursor.fetchall()
 
     conn.close()
 
     return render_template('d_remove.html', dates=result)
 
-@app.route('/detail/remove/<int:d>/delete')
-def delete_t_detail(d):
+@app.route('/detail/remove/<date>/delete')
+def delete_t_detail(date):
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
-    cursor.execute("DELETE FROM d_mat WHERE t_id = ?", (d,))
+    cursor.execute("DELETE FROM detail WHERE date = ?", (date,))
     conn.commit()
 
     conn.close()
 
     return redirect('/detail')
 
-@app.route('/detail/view')
+@app.route('/detail/view', methods=['POST', 'GET'])
 def view_detail():
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
-    cursor.execute("SELECT t_id, date FROM d_mat GROUP BY t_id, date ORDER BY date DESC")
+    if request.method == 'POST':
+        day = request.form.get('search_date')
+        if day != '':
+            cursor.execute("SELECT DISTINCT date FROM detail WHERE date = ? ORDER BY date DESC", (day, ))
+            result = cursor.fetchall()
+            conn.close()
+            return render_template('d_view.html', dates=result)
+
+    cursor.execute("SELECT DISTINCT date FROM detail ORDER BY date DESC")
     result = cursor.fetchall()
 
     conn.close()
 
     return render_template('d_view.html', dates=result)
 
-@app.route('/detail/view/<int:d>')
-def view_d_detail(d):
+@app.route('/detail/view/<date>')
+def view_d_detail(date):
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
 
-    cursor.execute('here')
+    cursor.execute('SELECT game FROM detail WHERE date = ?', (date, ))
+    games = cursor.fetchall()
 
-    return render_template('dt_view.html', date=d)
+    return render_template('dt_view.html', date=date, games=games)
 
-@app.route('/detail/view/<int:d>/<int:num>', methods=['POST', 'GET'])
-def view_stock_d_detail(d,num):
+@app.route('/detail/view/<date>/<name>', methods=['POST', 'GET'])
+def view_stock_d_detail(date,name):
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
     if request.method == 'POST':
@@ -879,22 +890,22 @@ def view_stock_d_detail(d,num):
         p_unit = request.form.get('p_unit')
 
         cursor.execute("""
-            UPDATE d_mat
-            SET nember_d_m=?, poid_udm=?, poid_f=?, number_f_r=?, poid_feb=?, poid_be=?, poid_bu=?, stock=?, unit=?, p_unit=?
-            WHERE t_id=? AND p_num=?
-        """, (nember_d_m, poid_udm, poid_f, number_f_r, poid_feb, poid_be, poid_bu, stock, unit, p_unit, d, num))
+            UPDATE detail
+            SET number_d_m=?, poid_udm=?, poid_f=?, number_f_r=?, poid_feb=?, poid_be=?, poid_bu=?, stock=?, unit=?, p_unit=?
+            WHERE date = ? AND game = ?
+        """, (nember_d_m, poid_udm, poid_f, number_f_r, poid_feb, poid_be, poid_bu, stock, unit, p_unit, date, name))
 
         conn.commit()
 
-        return redirect("/detail/view/"+str(d))
+        return redirect(f"/detail/view/{date}")
     else:
-        cursor.execute("SELECT nember_d_m, poid_udm, poid_f, number_f_r, poid_feb, poid_be, poid_bu, stock, unit, p_unit FROM d_mat WHERE t_id = ? AND p_num = ?", (d, num))
+        cursor.execute("SELECT number_d_m, poid_udm, poid_f, number_f_r, poid_feb, poid_be, poid_bu, stock, unit, p_unit FROM detail WHERE date = ? AND game = ?", (date, name))
 
         data = cursor.fetchone()
 
     conn.close()
 
-    return render_template('dt_s_view.html', date=d, data=data, num=num)
+    return render_template('dt_s_view.html', date=date, data=data, game=game)
 
 
     ### stock ### 
