@@ -1,0 +1,33 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+<title>Add workers</title>
+{% endblock %}
+
+{% block top %}
+<a href="/work" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+  <form id="stockForm" action="/cost/add" method="post">
+    <label class="l-lab" for="idk">idk:</label><br>
+    <input type="text" pattern="[0-9]+(\.[0-9]+)?" class="l-inp" name="idk" required>
+    <br><br>
+    <label class="l-lab" for="price">Prix:</label>
+    <br>
+    <input type="text" pattern="[0-9]+(\.[0-9]+)?" class="l-inp" name="price" required>
+    <br><br>
+    <label class="l-lab" for="price">txt1:</label>
+    <br>
+    <input type="text" class="l-inp" name="txt1" required>
+    <br><br>
+    <label class="l-lab" for="price">txt2:</label>
+    <br>
+    <input type="text" class="l-inp" name="txt2" required>
+    <br><br>
+    <button type="Submit" id="submitButton" class="button-19 cen">Enregistre</button>
+    <br><br><br>
+  </form>
+{% endblock %}

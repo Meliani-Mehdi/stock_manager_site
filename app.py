@@ -1355,21 +1355,21 @@ def w_time_view(name, date):
 def cost():
     return render_template('frai.html')
 
-@app.route('/cost')
-def cost():
-    return render_template('frai.html')
+@app.route('/cost/add')
+def add_cost():
+    return render_template('f_add.html')
 
-@app.route('/cost')
-def cost():
-    return render_template('frai.html')
-
-@app.route('/cost')
-def cost():
-    return render_template('frai.html')
-
-@app.route('/cost')
-def cost():
-    return render_template('frai.html')
+# @app.route('/cost')
+# def cost():
+#     return render_template('frai.html')
+#
+# @app.route('/cost')
+# def cost():
+#     return render_template('frai.html')
+#
+# @app.route('/cost')
+# def cost():
+#     return render_template('frai.html')
 
 
 if __name__ == '__main__':
