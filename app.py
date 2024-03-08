@@ -84,6 +84,17 @@ cursor.execute('''
 ''')
 
 cursor.execute('''
+    CREATE TABLE IF NOT EXISTS cost (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT,
+        type TEXT,
+        price REAL,
+        txt1 TEXT,
+        txt2 TEXT
+    )
+''')
+
+cursor.execute('''
     CREATE TABLE IF NOT EXISTS detail (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         date TEXT NOT NULL,
@@ -878,7 +889,7 @@ def view_stock_d_detail(date,name):
     conn = sqlite3.connect('form_data.db')
     cursor = conn.cursor()
     if request.method == 'POST':
-        nember_d_m = request.form.get('ndm')
+        number_d_m = request.form.get('ndm')
         poid_udm = request.form.get('pudm')
         poid_f = request.form.get('pf')
         number_f_r = request.form.get('nfr')
@@ -893,7 +904,7 @@ def view_stock_d_detail(date,name):
             UPDATE detail
             SET number_d_m=?, poid_udm=?, poid_f=?, number_f_r=?, poid_feb=?, poid_be=?, poid_bu=?, stock=?, unit=?, p_unit=?
             WHERE date = ? AND game = ?
-        """, (nember_d_m, poid_udm, poid_f, number_f_r, poid_feb, poid_be, poid_bu, stock, unit, p_unit, date, name))
+        """, (number_d_m, poid_udm, poid_f, number_f_r, poid_feb, poid_be, poid_bu, stock, unit, p_unit, date, name))
 
         conn.commit()
 
@@ -905,7 +916,7 @@ def view_stock_d_detail(date,name):
 
     conn.close()
 
-    return render_template('dt_s_view.html', date=date, data=data, game=game)
+    return render_template('dt_s_view.html', date=date, data=data, name=name)
 
 
     ### stock ### 
@@ -1174,6 +1185,7 @@ def calc_worker(id):
         return render_template('w_calc_result.html', sum=sum)
     return render_template('w_calc.html', id=id)
 
+        ### time ###
 
 @app.route('/time')
 def w_time():
@@ -1294,18 +1306,18 @@ def time_PDF(n_type, date, workers):
     pdf.set_font("Arial", 'B', size=10)
 
     pdf.ln(20)
-    pdf.cell(85, 15, "NOMS ET PRENOMS", border=1)
-    pdf.cell(45, 15, "HEURE D ENTREE", border=1, align='C')
-    pdf.cell(45, 15, "HEURE D SORTIE", border=1, align='C')
-    pdf.cell(45, 15, "EMARGEMENT", border=1, align='C')
-    pdf.cell(45, 15, "OBSERVATION", border=1, align='C')
+    pdf.cell(70, 15, "NOMS ET PRENOMS", border=1)
+    pdf.cell(36, 15, "HEURE D ENTREE", border=1, align='C')
+    pdf.cell(36, 15, "HEURE D SORTIE", border=1, align='C')
+    pdf.cell(64, 15, "EMARGEMENT", border=1, align='C')
+    pdf.cell(64, 15, "OBSERVATION", border=1, align='C')
     pdf.ln(15)
     for worker in workers:
-        pdf.cell(85, 10, worker[0], border=1)
-        pdf.cell(45, 10, worker[1], border=1, align='C')
-        pdf.cell(45, 10, worker[2], border=1, align='C')
-        pdf.cell(45, 10, worker[3], border=1, align='C')
-        pdf.cell(45, 10, worker[4], border=1, align='C')
+        pdf.cell(70, 10, worker[0], border=1)
+        pdf.cell(36, 10, worker[1], border=1, align='C')
+        pdf.cell(36, 10, worker[2], border=1, align='C')
+        pdf.cell(64, 10, worker[3], border=1, align='C')
+        pdf.cell(64, 10, worker[4], border=1, align='C')
         pdf.ln(10)
 
     pdf_output = pdf.output(dest='S').encode('latin1')
@@ -1337,9 +1349,28 @@ def w_time_view(name, date):
 
     return render_template('tn_view.html', results=results, name=name, date=date)
 
+        ### frai ###
+
 @app.route('/cost')
 def cost():
     return render_template('frai.html')
+
+@app.route('/cost')
+def cost():
+    return render_template('frai.html')
+
+@app.route('/cost')
+def cost():
+    return render_template('frai.html')
+
+@app.route('/cost')
+def cost():
+    return render_template('frai.html')
+
+@app.route('/cost')
+def cost():
+    return render_template('frai.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
