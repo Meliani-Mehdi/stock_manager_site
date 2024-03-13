@@ -1,0 +1,47 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+<title>calc frai</title>
+<style>
+.l-lab {
+  padding-right: 20%;
+}
+
+h1 {
+  margin-left: 15%;
+  margin-top: 20%;
+}
+</style>
+{% endblock %}
+
+{% block top %}
+<a href="/cost" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+<form id="stockForm" action="/cost/calc" method="post">
+  <br><br><br><br>
+  <label class="l-lab" for="start">Premier jour:</label>
+  <label class="l-lab" for="last">Dernier jour:</label>
+  <br>
+  <input id="fn" type="date" class="l-inp" name="start" value="{{ vals[0] }}" required>
+  <input id="ln" type="date" class="l-inp" name="last" value="{{ vals[1] }}" required>
+  <br><br>
+  <label class="l-lab" for="type">type:</label>
+  <br>
+  <select id="selec" name="type" class="l-inp">
+    <option value="all">tout</option>
+    <option value="edox">edox</option>
+    <option value="polypap">polypap</option>
+    <option value="personal">personal</option>
+  </select>
+  <button type="Submit" id="submitButton" class="button-19 cen">Enregistre</button>
+  <br><br><br>
+</form>
+<h1>{{ message }}</h1>
+<script>
+  document.getElementById('selec').value = '{{ vals[2] }}';
+</script>
+{% endblock %}

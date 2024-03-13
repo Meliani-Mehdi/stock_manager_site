@@ -1355,9 +1355,38 @@ def w_time_view(name, date):
 def cost():
     return render_template('frai.html')
 
-@app.route('/cost/calc')
+@app.route('/cost/calc', methods=['POST', 'GET'])
 def calc_cost():
-    return render_template('frai.html')
+    vals = []
+    if request.method == 'POST':
+        start = request.form.get('start', "")
+        last = request.form.get('last', "") 
+        c_type = request.form.get('type', "")
+        vals = [start, last, c_type]
+        if last >= start:
+            conn = sqlite3.connect('form_data.db')
+            cursor = conn.cursor()
+            message = '<'
+            if c_type == 'all':
+                cursor.execute('''
+                    SELECT SUM(price)
+                    FROM cost
+                    WHERE date >= ? AND date <= ?;
+                    ''', (start, last))
+                message = f'total: {cursor.fetchone()[0]}'
+            else:
+                cursor.execute('''
+                    SELECT SUM(price)
+                    FROM cost
+                    WHERE (date >= ? AND date <= ?) AND type = ?;
+                    ''', (start, last, c_type))
+                message = f'{c_type}: {cursor.fetchone()[0]}'
+
+            return render_template('f_calc.html', vals=vals, message=message)
+        else:
+            return render_template('f_calc.html', vals=vals, message="erreur: debut > fin")
+
+    return render_template('f_calc.html', vals=vals)
 
 @app.route('/cost/<name>')
 def type_cost(name):
