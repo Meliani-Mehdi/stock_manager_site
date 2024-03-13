@@ -205,7 +205,7 @@ def edit_game_id(id):
         conn.close()
         return redirect('/game')
 
-    cursor.execute('SELECT * FROM game WHERE id = ? WHERE deleted = 0', (id, ))
+    cursor.execute('SELECT * FROM game WHERE id = ?', (id, ))
     data_f = cursor.fetchone()
     game = {
         'id': data_f[0],
@@ -1355,21 +1355,28 @@ def w_time_view(name, date):
 def cost():
     return render_template('frai.html')
 
-@app.route('/cost/add')
-def add_cost():
+@app.route('/cost/<name>')
+def type_cost(name):
+    return render_template('f_type.html', name=name)
+
+
+@app.route('/cost/<name>/add', methods=['POST', 'GET'])
+def add_cost(name):
+    if request.method == 'POST':
+        conn = sqlite3.connect('form_data.db')
+        cursor = conn.cursor()
+        date = request.form.get('date', datetime.now().strftime("%Y-%m-%d"))
+        cursor.execute('INSERT INTO cost(date, type, price, txt1, txt2) VALUES(?, ?, ?, ?, ?)')
+
     return render_template('f_add.html')
 
 # @app.route('/cost')
 # def cost():
 #     return render_template('frai.html')
-#
-# @app.route('/cost')
-# def cost():
-#     return render_template('frai.html')
-#
-# @app.route('/cost')
-# def cost():
-#     return render_template('frai.html')
+
+@app.route('/cost/<name>/view')
+def view_cost():
+    return render_template('f_view.html')
 
 
 if __name__ == '__main__':

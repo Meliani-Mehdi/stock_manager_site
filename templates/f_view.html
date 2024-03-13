@@ -1,0 +1,31 @@
+
+{% extends 'main.html' %}
+{% block head %}
+<title>frai list</title>
+<style>
+  table {
+    border-collapse: collapse;
+    width: 40%;
+    margin: 30%;
+    margin-top: 1%;
+  }
+</style>
+{% endblock %}
+
+{% block top %}
+<a href="/frai/{{ name }}" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+<table>
+  <tr>
+    <th>DATE</th>
+  </tr>
+  {% for date in dates %}
+  <tr>
+    <td onclick="window.location='/time/{{ name }}/{{ date[0] }}/view';" style="cursor: pointer;">{{ date[0] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

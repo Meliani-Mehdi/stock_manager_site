@@ -1,0 +1,20 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<title>Frai</title>
+{% endblock %}
+
+{% block top %}
+<a href="/cost" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+<a href="/cost/{{name}}/view"><button type="button" class="button-19 bot">list des frai de type {{ name }}</button></a>
+<br><br>
+<a href="/cost/{{name}}/add"><button type="button" class="button-19 bot">Ajoute un frai de type {{ name }}</button></a>
+<br><br>
+<a href="/cost/{{name}}/edit"><button type="button" class="button-19 bot">modifier un frai de type {{ name }}</button></a>
+<br><br>
+<a href="/cost/{{name}}/remove"><button type="button" class="button-19 bot">Supprimer frai de type {{ name }}</button></a>
+{% endblock %}

@@ -12,20 +12,20 @@
 
 {% block bot %}
   <form id="stockForm" action="/cost/add" method="post">
-    <label class="l-lab" for="idk">idk:</label><br>
-    <input type="text" pattern="[0-9]+(\.[0-9]+)?" class="l-inp" name="idk" required>
+    <label class="l-lab" for="date">date:</label><br>
+    <input type="date" class="l-inp" name="date">
     <br><br>
     <label class="l-lab" for="price">Prix:</label>
     <br>
     <input type="text" pattern="[0-9]+(\.[0-9]+)?" class="l-inp" name="price" required>
     <br><br>
-    <label class="l-lab" for="price">txt1:</label>
+    <label class="l-lab" for="txt1">txt1:</label>
     <br>
-    <input type="text" class="l-inp" name="txt1" required>
+    <input type="text" class="l-inp" name="txt1" >
     <br><br>
-    <label class="l-lab" for="price">txt2:</label>
+    <label class="l-lab" for="txt2">txt2:</label>
     <br>
-    <input type="text" class="l-inp" name="txt2" required>
+    <input type="text" class="l-inp" name="txt2" >
     <br><br>
     <button type="Submit" id="submitButton" class="button-19 cen">Enregistre</button>
     <br><br><br>
