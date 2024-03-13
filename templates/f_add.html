@@ -2,16 +2,16 @@
 
 {% block head %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
-<title>Add workers</title>
+<title>Add frai</title>
 {% endblock %}
 
 {% block top %}
-<a href="/work" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/cost/{{ name }}" id="back"><div class="thick-arrow-left"></div></a>
 <a href="/main" id="aclose"><div class="close"></div></a>
 {% endblock %}
 
 {% block bot %}
-  <form id="stockForm" action="/cost/add" method="post">
+<form id="stockForm" action="/cost/{{ name }}/add" method="post">
     <label class="l-lab" for="date">date:</label><br>
     <input type="date" class="l-inp" name="date">
     <br><br>

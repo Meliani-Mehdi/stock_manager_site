@@ -1,13 +1,21 @@
 {% extends 'main.html' %}
 
 {% block head %}
-<title>Voir list des games</title>
+<title>Date list</title>
 <style>
   table {
     border-collapse: collapse;
     width: 40%;
     margin: 30%;
     margin-top: 1%;
+  }
+
+  tr:nth-child(even) td {
+    background-color: #808080;
+  }
+
+  tr:nth-child(odd) td {
+    background-color: #9c9c9c;
   }
 
   tr:nth-child(even) td {
@@ -75,7 +83,7 @@
 {% endblock %}
 
 {% block top %}
-<a href="/game" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/cost/{{ name }}" id="back"><div class="thick-arrow-left"></div></a>
 <a href="/main" id="aclose"><div class="close"></div></a>
 {% endblock %}
 
@@ -86,21 +94,22 @@
   <button onclick="deleteFile()" class="yes">Oui</button>
   <button onclick="closePopup()" class="no">Non</button>
 </div>
-<h2>game</h2>
 <table>
   <thead>
     <tr>
-      <th>Nom</th>
-      <th>Unite</th>
-      <th>prix unite</th>
+      <th>Date</th>
+      <th>Price</th>
+      <th>TXT1</th>
+      <th>TXT2</th>
     </tr>
   </thead>
   <tbody>
-    {% for game in games %}
-    <tr onclick="openPopup('{{ game.id }}');" style="cursor: pointer;">
-      <td>{{ game.name }}</td>
-      <td class="dFloat">{{ game.unit }}</td>
-      <td class="dFloat">{{ game.price }}</td>
+    {% for data in datas %}
+    <tr onclick="openPopup('{{ data.id }}');" style="cursor: pointer;">
+      <td>{{ data.date }}</td>
+      <td class="dFloat">{{ data.price }}</td>
+      <td>{{ data.txt1 }}</td>
+      <td>{{ data.txt2 }}</td>
     </tr>
     {% endfor %}
   </tbody>
@@ -108,8 +117,8 @@
 <br>
 <script>
   let game;
-  function openPopup(game_id) {
-    game = game_id
+  function openPopup(data_id) {
+    id = data_id
     document.getElementById('overlay').style.display = 'block';
     document.getElementById('customPopup').style.display = 'block';
   }
@@ -120,7 +129,7 @@
   }
 
   function deleteFile() {
-    window.location = '/game/remove/' + game; 
+    window.location = '/cost/{{ name }}/remove/' + id; 
   }
 </script>
 {% endblock %}

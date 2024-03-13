@@ -1,0 +1,50 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<title>Date list</title>
+<style>
+  table {
+    border-collapse: collapse;
+    width: 40%;
+    margin: 30%;
+    margin-top: 1%;
+  }
+
+  tr:nth-child(even) td {
+    background-color: #808080;
+  }
+
+  tr:nth-child(odd) td {
+    background-color: #9c9c9c;
+  }
+</style>
+{% endblock %}
+
+{% block top %}
+<a href="/cost/{{ name }}" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+<table>
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Price</th>
+      <th>TXT1</th>
+      <th>TXT2</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for data in datas %}
+    <tr onclick="window.location='/cost/{{ name }}/edit/{{ data.id }}';" style="cursor: pointer;">
+      <td>{{ data.date }}</td>
+      <td class="dFloat">{{ data.price }}</td>
+      <td>{{ data.txt1 }}</td>
+      <td>{{ data.txt2 }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<br>
+{% endblock %}

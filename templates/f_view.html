@@ -1,7 +1,7 @@
-
 {% extends 'main.html' %}
+
 {% block head %}
-<title>frai list</title>
+<title>Date list</title>
 <style>
   table {
     border-collapse: collapse;
@@ -13,19 +13,30 @@
 {% endblock %}
 
 {% block top %}
-<a href="/frai/{{ name }}" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/cost/{{ name }}" id="back"><div class="thick-arrow-left"></div></a>
 <a href="/main" id="aclose"><div class="close"></div></a>
 {% endblock %}
 
 {% block bot %}
 <table>
-  <tr>
-    <th>DATE</th>
-  </tr>
-  {% for date in dates %}
-  <tr>
-    <td onclick="window.location='/time/{{ name }}/{{ date[0] }}/view';" style="cursor: pointer;">{{ date[0] }}</td>
-  </tr>
-  {% endfor %}
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Price</th>
+      <th>TXT1</th>
+      <th>TXT2</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for data in datas %}
+    <tr>
+      <td>{{ data.date }}</td>
+      <td class="dFloat">{{ data.price }}</td>
+      <td>{{ data.txt1 }}</td>
+      <td>{{ data.txt2 }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
+<br>
 {% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'main.html' %}
+
+{% block head %}
+<title>frai</title>
+{% endblock %}
+
+{% block top %}
+<a href="/cost/{{ name }}/add" id="back"><div class="thick-arrow-left"></div></a>
+<a href="/main" id="aclose"><div class="close"></div></a>
+{% endblock %}
+
+{% block bot %}
+<br><br><br>
+<h1>{{ message }}</h1>
+{% endblock %}

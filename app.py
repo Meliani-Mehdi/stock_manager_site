@@ -1355,28 +1355,121 @@ def w_time_view(name, date):
 def cost():
     return render_template('frai.html')
 
+@app.route('/cost/calc')
+def calc_cost():
+    return render_template('frai.html')
+
 @app.route('/cost/<name>')
 def type_cost(name):
     return render_template('f_type.html', name=name)
-
 
 @app.route('/cost/<name>/add', methods=['POST', 'GET'])
 def add_cost(name):
     if request.method == 'POST':
         conn = sqlite3.connect('form_data.db')
         cursor = conn.cursor()
-        date = request.form.get('date', datetime.now().strftime("%Y-%m-%d"))
-        cursor.execute('INSERT INTO cost(date, type, price, txt1, txt2) VALUES(?, ?, ?, ?, ?)')
+        date = request.form.get('date', None)
+        date = date if date else datetime.now().strftime("%Y-%m-%d")
+        cursor.execute('SELECT date FROM cost WHERE date = ? and type = ?', (date, name))
+        if cursor.fetchone() is not None:
+            return render_template('error.html', message="date already exist", name=name)
+        price = request.form.get('price')
+        txt1 = request.form.get('txt1', '')
+        txt2 = request.form.get('txt2', '')
+        cursor.execute('INSERT INTO cost(date, type, price, txt1, txt2) VALUES(?, ?, ?, ?, ?)', (date, name, price, txt1, txt2))
+        conn.commit()
+        conn.close()
+        return redirect(f'/cost/{name}')
 
-    return render_template('f_add.html')
+    return render_template('f_add.html', name=name)
 
-# @app.route('/cost')
-# def cost():
-#     return render_template('frai.html')
+@app.route('/cost/<name>/edit')
+def edit_cost(name):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, date, price, txt1, txt2 FROM cost WHERE type = ? ORDER BY date DESC', (name, ))
+    vals = cursor.fetchall()
+    datas = []
+    for val in vals:
+        data = {
+            'id':val[0],
+            'date':val[1],
+            'price':val[2],
+            'txt1':val[3],
+            'txt2':val[4],
+        }
+        datas.append(data)
+
+    conn.close()
+    return render_template('f_edit.html', name=name, datas=datas)
+
+@app.route('/cost/<name>/edit/<int:id>', methods=['POST', 'GET'])
+def update_cost(name, id):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    if request.method == 'POST':
+        price = request.form.get('price')
+        txt1 = request.form.get('txt1', '')
+        txt2 = request.form.get('txt2', '')
+        cursor.execute('UPDATE cost SET price = ?, txt1 = ?, txt2 = ? WHERE id = ?', (price, txt1, txt2, id))
+        conn.commit()
+        conn.close()
+        return redirect(f'/cost/{name}')
+
+    cursor.execute('SELECT price, txt1, txt2 FROM cost WHERE id = ?', (id, ))
+    data = cursor.fetchone()
+
+    conn.close()
+    return render_template('f_modify.html', name=name, id=id, data=data)
+
+@app.route('/cost/<name>/remove')
+def remove_cost(name):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, date, price, txt1, txt2 FROM cost WHERE type = ? ORDER BY date DESC', (name, ))
+    vals = cursor.fetchall()
+    datas = []
+    for val in vals:
+        data = {
+            'id':val[0],
+            'date':val[1],
+            'price':val[2],
+            'txt1':val[3],
+            'txt2':val[4],
+        }
+        datas.append(data)
+
+    conn.close()
+    return render_template('f_remove.html', name=name, datas=datas)
+
+@app.route('/cost/<name>/remove/<int:id>')
+def delete_cost(name,id):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM cost WHERE id = ?', (id, ))
+
+    conn.commit()
+    conn.close()
+    return redirect(f'/cost/{name}')
 
 @app.route('/cost/<name>/view')
-def view_cost():
-    return render_template('f_view.html')
+def view_cost(name):
+    conn = sqlite3.connect('form_data.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT date, price, txt1, txt2 FROM cost WHERE type = ? ORDER BY date DESC', (name, ))
+    vals = cursor.fetchall()
+    datas = []
+    for val in vals:
+        data = {
+            'date':val[0],
+            'price':val[1],
+            'txt1':val[2],
+            'txt2':val[3],
+        }
+        datas.append(data)
+
+    conn.close()
+    return render_template('f_view.html', name=name, datas=datas)
 
 
 if __name__ == '__main__':
