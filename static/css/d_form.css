@@ -1,4 +1,3 @@
-
 label {
   color: #ccc;
   font-weight: bold;
@@ -14,7 +13,9 @@ input {
 .grid-container {
   display: grid;
   grid-template-columns: auto auto auto;
-  padding: 10px;
+  background: #2550a0;
+  margin-left: 5%;
+  margin-right: 5%;
 }
 
 .grid-item {

@@ -2,15 +2,8 @@
 
 {% block head %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/d_form.css') }}">
-<title>Stock View</title>
+<title>Details View</title>
 <style>
-  table {
-    border-collapse: collapse;
-    width: 40%;
-    margin: 30%;
-    margin-top: 1%;
-  }
-
   .grid-container{
     border: 3px solid black;
   }
@@ -28,11 +21,11 @@
   <div class="grid-container">
     <div class="grid-item">
       <label for="ndm">Nombre de mellange:</label><br>
-      <input type="text" id="ndm" name="ndm" value="{{ data[0] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="calculateTotal()"><br>
+      <input type="text" id="ndm" name="ndm" value="{{ data[0] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number"  oninput="update()"><br>
     </div>
     <div class="grid-item">
       <label for="pudm">Pois/Unit de mellange:</label><br>
-      <input type="text" id="pudm" name="pudm" value="{{ data[1] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="calculateTotal()"><br>
+      <input type="text" id="pudm" name="pudm" value="{{ data[1] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number"  oninput="update()"><br>
     </div>
     <div class="grid-item">
       <label>Pois/Total de mellange:</label><br>
@@ -40,43 +33,39 @@
     </div>
     <div class="grid-item">
       <label for="pf">Pois fardo:</label><br>
-      <input type="text" id="pf" name="pf" value="{{ data[2] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="calculateTh()"><br>
+      <input type="text" id="pf" name="pf" value="{{ data[2] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="update()"><br>
     </div>
     <div class="grid-item">
       <label>Nombre de fardo theoriquement:</label><br>
       <span id="nft"></span>
     </div>
     <div class="grid-item">
-      <label for="nfr">Nombre de fardo reel:</label><br>
-      <input type="text" id="nfr" name="nfr" value="{{ data[3] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number"><br>
-    </div>
-    <div class="grid-item">
       <label for="pfb">poid/film et bloc:</label><br>
-      <input type="text" id="pfb" name="pfb" value="{{ data[4] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number"><br>
+      <input type="text" id="pfb" name="pfb" value="{{ data[4] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="update()"><br>
     </div>
     <div class="grid-item">
       <label for="pbe">poid/bobine extrude:</label><br>
-      <input type="text" id="pbe" name="pbe" value="{{ data[5] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="calculateTh2()"><br>
+      <span id="pbe"></span>
     </div>
     <div class="grid-item">
       <label for="pbu">poid brut unitaire:</label><br>
-      <input type="text" id="pbu" name="pbu" value="{{ data[6] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="calculateTh2()"><br>
+      <input type="text" id="pbu" name="pbu" value="{{ data[6] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="update()"><br>
     </div>
     <div class="grid-item">
       <label>Nombre fardo theorique:</label><br>
       <span id="nft2"></span>
     </div>
     <div class="grid-item">
-      <label for="stock">Stock:</label><br>
-      <input type="text" id="stock" name="stock" value="{{ data[7] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="calculate()"><br>
+      <label for="stock">Nombre de fardo reel:</label><br>
+      <input type="text" id="stock" name="stock" value="{{ data[7] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="update()"><br>
     </div>
     <div class="grid-item">
-      <label for="stock">Unite:</label><br>
-      <input type="text" id="unit" name="unit" value="{{ data[8] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="calculate()"><br>
+      <label for="unit">Unite:</label><br>
+      <input type="text" id="unit" name="unit" value="{{ data[8] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="update()"><br>
     </div>
     <div class="grid-item">
-      <label for="stock">Prix d'unite:</label><br>
-      <input type="text" id="p_unit" name="p_unit" value="{{ data[9] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="calculate()"><br>
+      <label for="p_unit">Prix d'unite:</label><br>
+      <input type="text" id="p_unit" name="p_unit" value="{{ data[9] }}" pattern="[0-9]+(\.[0-9]+)?" title="Enter a valid number" oninput="update()"><br>
     </div>
     <div class="grid-item">
       <label>Valeur du stock:</label><br>
@@ -88,47 +77,30 @@
 </form>
 <br><br><br>
 <script>
-  var totalPoids = 0;
-  var calc3 = 0;
-
-  calculateTotal();
-  calculateTh();
-  calculateTh2();
-  calculate();
-
-  function calculateTotal() {
+  update();
+  function update() {
     var ndmValue = parseFloat(document.getElementById('ndm').value) || 0;
     var pudmValue = parseFloat(document.getElementById('pudm').value) || 0;
-
-    totalPoids = ndmValue * pudmValue;
-
-    document.getElementById('totalPoids').textContent = totalPoids.toFixed(2);
-  }
-
-  function calculateTh() {
     var pfValue = parseFloat(document.getElementById('pf').value) || 1;
-
-    var nft = totalPoids / pfValue; 
-
-    document.getElementById('nft').textContent = nft.toFixed(2);
-  }
-
-  function calculateTh2() {
-    var pbeValue = parseFloat(document.getElementById('pbe').value) || 0;
+    var pfbValue = parseFloat(document.getElementById('pfb').value) || 1;
     var pbuValue = parseFloat(document.getElementById('pbu').value) || 1;
-
-    var nft = pbeValue / pbuValue; 
-
-    document.getElementById('nft2').textContent = nft.toFixed(2);
-  }
-
-  function calculate() {
     var stockValue = parseFloat(document.getElementById('stock').value) || 0;
     var unitValue = parseFloat(document.getElementById('unit').value) || 0;
     var pUnitValue = parseFloat(document.getElementById('p_unit').value) || 0;
 
-    calc3 = stockValue * unitValue * pUnitValue;
+    var totalPoids = ndmValue * pudmValue;
+    document.getElementById('totalPoids').textContent = totalPoids.toFixed(2);
 
+    var pbeValue = totalPoids - pfbValue;
+    document.getElementById('pbe').textContent = pbeValue.toFixed(2);
+
+    var nft = totalPoids / pfValue;
+    document.getElementById('nft').textContent = nft.toFixed(2);
+
+    var nft2 = pbeValue / pbuValue;
+    document.getElementById('nft2').textContent = nft2.toFixed(2);
+
+    var calc3 = stockValue * unitValue * pUnitValue;
     document.getElementById('v_stock').textContent = calc3.toFixed(2);
   }
 </script>
