@@ -1,3 +1,4 @@
+from types import MethodType
 from flask import Flask, render_template, request, redirect, jsonify, Response
 from fpdf import FPDF
 from datetime import datetime, timedelta
@@ -101,11 +102,9 @@ cursor.execute('''
         game TEXT NOT NULL,
         number_d_m INTEGER DEFAULT 0,
         poid_udm REAL DEFAULT 0,
+        dd REAL DEFAULT 0,
         poid_f REAL DEFAULT 0,
-        number_f_r REAL DEFAULT 0,
         poid_feb REAL DEFAULT 0,
-        poid_be REAL DEFAULT 0,
-        poid_bu REAL DEFAULT 0,
         stock INTEGER DEFAULT 0,
         unit REAL DEFAULT 0,
         p_unit REAL DEFAULT 0
@@ -279,6 +278,26 @@ def view_game():
 @app.route('/client')
 def client():
     return render_template('client.html')
+
+@app.route('/client/calc', methods=['POST', 'GET'])
+def client_calc():
+    if request.method == 'POST':
+        start = request.form.get('start')
+        last = request.form.get('last')
+        conn = sqlite3.connect('form_data.db')
+        cursor = conn.cursor()
+
+        cursor.execute("""
+        SELECT SUM(pay) 
+        FROM payment 
+        WHERE date>=? AND date<=?;
+        """, (start, last))
+        ver = cursor.fetchone()[0]
+
+        conn.close()
+        return render_template('c_calc.html', message=f"versement{ver}")
+        
+    return render_template('c_calc.html',message="")
 
 @app.route('/client/add', methods=['POST', 'GET'])
 def add_client():
@@ -730,7 +749,7 @@ def generate_pdf_content(user_data, games, total, t1, t2, t3, t4):
     pdf.set_fill_color(200, 220, 255)
     pdf.cell(20, 8, "N°D ORDR", border=1, fill=True, align='C')
     pdf.cell(20, 8, "QUANT", border=1, fill=True, align='C')
-    pdf.cell(50, 8, "Designation", border=1, fill=True, align='C')
+    pdf.cell(60, 8, "Designation", border=1, fill=True, align='C')
     pdf.cell(20, 8, "unit", border=1, fill=True, align='C')
     pdf.cell(20, 8, "p/u", border=1, fill=True, align='C')
     pdf.cell(40, 8, "montant", border=1, fill=True, align='C')
@@ -741,23 +760,23 @@ def generate_pdf_content(user_data, games, total, t1, t2, t3, t4):
         i += 1
         pdf.cell(20, 8, str(i), border=1, align='C')
         pdf.cell(20, 8, str(game['number']), border=1)
-        pdf.cell(50, 8, str(game['name']), border=1)
+        pdf.cell(60, 8, str(game['name']), border=1)
         pdf.cell(20, 8, f"{float(game['unit']):.2f}", border=1)
         pdf.cell(20, 8, f"{float(game['unitp']):.2f}", border=1)
         pdf.cell(40, 8, f"{float(game['total']):.2f}", border=1)
         pdf.ln(8)
 
-    pdf.cell(110, 8, "")
+    pdf.cell(120, 8, "")
     pdf.cell(20, 8, "", border=1)
     pdf.cell(40, 8, f"{float(total):.2f}", border=1)
     pdf.ln(8)
     t = total*19/100
-    pdf.cell(90, 8, "")
+    pdf.cell(100, 8, "")
     pdf.cell(20, 8, "TVA", align='C')
     pdf.cell(20, 8, "19", border=1)
     pdf.cell(40, 8, f"{float(t):.2f}", border=1)
     pdf.ln(8)
-    pdf.cell(110, 8, "")
+    pdf.cell(120, 8, "")
     pdf.cell(20, 8, "", border=1)
     pdf.cell(40, 8, f"{float(total + t):.2f}", border=1)
     pdf.ln(16)
@@ -891,32 +910,55 @@ def view_stock_d_detail(date,name):
     if request.method == 'POST':
         number_d_m = request.form.get('ndm')
         poid_udm = request.form.get('pudm')
+        dd = request.form.get('dd')
         poid_f = request.form.get('pf')
-        number_f_r = request.form.get('nfr')
         poid_feb = request.form.get('pfb')
-        poid_be = request.form.get('pbe')
-        poid_bu = request.form.get('pbu')
         stock = request.form.get('stock')
         unit = request.form.get('unit')
         p_unit = request.form.get('p_unit')
 
         cursor.execute("""
             UPDATE detail
-            SET number_d_m=?, poid_udm=?, poid_f=?, number_f_r=?, poid_feb=?, poid_be=?, poid_bu=?, stock=?, unit=?, p_unit=?
+            SET number_d_m=?,
+            poid_udm=?,
+            dd=?,
+            poid_f=?,
+            poid_feb=?,
+            stock=?,
+            unit=?,
+            p_unit=?
             WHERE date = ? AND game = ?
-        """, (number_d_m, poid_udm, poid_f, number_f_r, poid_feb, poid_be, poid_bu, stock, unit, p_unit, date, name))
+        """, (number_d_m, poid_udm, dd, poid_f, poid_feb, stock, unit, p_unit, date, name))
 
         conn.commit()
 
         return redirect(f"/detail/view/{date}")
     else:
-        cursor.execute("SELECT number_d_m, poid_udm, poid_f, number_f_r, poid_feb, poid_be, poid_bu, stock, unit, p_unit FROM detail WHERE date = ? AND game = ?", (date, name))
+        cursor.execute("""
+        SELECT 
+        number_d_m,
+        poid_udm,
+        poid_f,
+        poid_feb,
+        dd,
+        stock,
+        unit,
+        p_unit
+        FROM detail WHERE date = ? AND game = ?""", (date, name))
 
-        data = cursor.fetchone()
-
+        datas = cursor.fetchall()
+        for data in datas:
+            fix = [f"{data[0]}",
+                   f"{data[1]}",
+                   f"{data[2]}",
+                   f"{data[3]}",
+                   f"{data[4]}",
+                   f"{data[5]}",
+                   f"{data[6]:.2f}",
+                   f"{data[7]:.2f}"]
     conn.close()
 
-    return render_template('dt_s_view.html', date=date, data=data, name=name)
+    return render_template('dt_s_view.html', date=date, data=fix, name=name)
 
 
     ### stock ### 
@@ -991,6 +1033,7 @@ def view_stock_date(date):
     cursor.execute('SELECT game.name, stock.stock, stock.today_stock, game.unit, game.unitPrice FROM stock JOIN game ON stock.game_id = game.id WHERE stock.p_date = ?', (date, ))
     datas = cursor.fetchall()
     stocks = []
+    sums = [0, 0, 0, 0, 0, 0, 0]
 
     for data in datas:
 
@@ -1011,22 +1054,33 @@ def view_stock_date(date):
         tot =  0 if tp[1] is None else tp[1]
         price =  0 if tp[0] is None else tp[0]
 
+        totalf = data[1] + data[2] - tot
+
         stock = {
             'name': data[0],
             'stock': data[1],
             'today_stock': data[2],
             't': data[1] + data[2],
             'exit': tot,
-            'total': data[1] + data[2] - tot,
+            'total': totalf,
             'unit': data[3],
             'unitp': data[4],
+            'prob': totalf * data[3] * data[4],
             'price': price,
         }
+        sums[0] = sums[0] + stock['stock']
+        sums[1] = sums[1] + stock['today_stock']
+        sums[2] = sums[2] + stock['t']
+        sums[3] = sums[3] + stock['exit']
+        sums[4] = sums[4] + stock['total']
+        sums[5] = sums[5] + stock['prob']
+        sums[6] = sums[6] + price
+        
         stocks.append(stock)
 
     conn.close()
 
-    return render_template('s_view_date.html', stocks=stocks, Date=date)
+    return render_template('s_view_date.html', stocks=stocks, Date=date, total=sums)
 
 
 @app.route('/update_value', methods=['POST'])

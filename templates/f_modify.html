@@ -12,15 +12,15 @@
 
 {% block bot %}
 <form id="stockForm" action="/cost/{{ name }}/edit/{{ id }}" method="post">
-    <label class="l-lab" for="price">Prix:</label>
+    <label class="l-lab" for="price">totale argent:</label>
     <br>
-    <input type="text" pattern="[0-9]+(\.[0-9]+)?" class="l-inp" name="price" value="{{ data[0] }}" required>
+    <input type="text" pattern="[0-9]+(\.[0-9]+)?" class="l-inp" name="price" required>
     <br><br>
-    <label class="l-lab" for="txt1">txt1:</label>
+    <label class="l-lab" for="txt1">designation:</label>
     <br>
-    <input type="text" class="l-inp" name="txt1" value="{{ data[1] }}">
+    <input type="text" class="l-inp" name="txt1" >
     <br><br>
-    <label class="l-lab" for="txt2">txt2:</label>
+    <label class="l-lab" for="txt2">autre note:</label>
     <br>
     <input type="text" class="l-inp" name="txt2"  value="{{ data[2] }}">
     <br><br>

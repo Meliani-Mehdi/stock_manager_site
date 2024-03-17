@@ -33,15 +33,16 @@ h1 {
   <br>
   <select id="selec" name="type" class="l-inp">
     <option value="all">tout</option>
-    <option value="edox">edox</option>
+    <option value="eudox">eudox</option>
     <option value="polypap">polypap</option>
-    <option value="personal">personal</option>
+    <option value="personnel">personnel</option>
   </select>
   <button type="Submit" id="submitButton" class="button-19 cen">Enregistre</button>
   <br><br><br>
 </form>
 <h1>{{ message }}</h1>
 <script>
-  document.getElementById('selec').value = '{{ vals[2] }}';
+  var val = '{{ vals[2] }}'
+  if(val.length != 0)document.getElementById('selec').value = val;
 </script>
 {% endblock %}
