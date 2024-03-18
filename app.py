@@ -293,9 +293,10 @@ def client_calc():
         WHERE date>=? AND date<=?;
         """, (start, last))
         ver = cursor.fetchone()[0]
+        ver = 0 if ver is None else ver
 
         conn.close()
-        return render_template('c_calc.html', message=f"versement{ver}")
+        return render_template('c_calc.html', message=f"versement: {float(ver):.2f}")
         
     return render_template('c_calc.html',message="")
 
@@ -1420,23 +1421,24 @@ def calc_cost():
         if last >= start:
             conn = sqlite3.connect('form_data.db')
             cursor = conn.cursor()
-            message = '<'
             if c_type == 'all':
                 cursor.execute('''
                     SELECT SUM(price)
                     FROM cost
                     WHERE date >= ? AND date <= ?;
                     ''', (start, last))
-                message = f'total: {cursor.fetchone()[0]}'
             else:
                 cursor.execute('''
                     SELECT SUM(price)
                     FROM cost
                     WHERE (date >= ? AND date <= ?) AND type = ?;
                     ''', (start, last, c_type))
-                message = f'{c_type}: {cursor.fetchone()[0]}'
 
-            return render_template('f_calc.html', vals=vals, message=message)
+            var = cursor.fetchone()[0]
+            var = 0 if var is None else var
+            c_type = 'Total' if c_type == 'all' else c_type
+
+            return render_template('f_calc.html', vals=vals, message=f"{c_type}: {var:.2f}")
         else:
             return render_template('f_calc.html', vals=vals, message="erreur: debut > fin")
 
